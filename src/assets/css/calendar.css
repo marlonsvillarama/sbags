@@ -1,0 +1,34 @@
+.cal-side {
+    width: 5rem;
+    /* border-right: 1px solid var(--border-gray-lite); */
+    /* background-color: aquamarine; */
+    position: relative;
+}
+.cal-row {
+    height: 60px;
+}
+.cal-side-row {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    /* color: var(--font-color-gray-medlite); */
+    padding-right: 1rem;
+    text-align: right;
+    border: 1px solid transparent;
+}
+.cal-side-row span {
+    border: 1px solid transparent;
+    display: block;
+    margin-top: -0.5rem;
+}
+.cal-lines {
+    width: 1rem;
+    /* background-color: antiquewhite; */
+    position: relative;
+}
+.cal-lines>.cal-row {
+    height: 60px;
+    border-bottom: 1px solid var(--color-hairline);
+}
+/* .tile-1:hover {
+    background-color: aliceblue;
+} */
