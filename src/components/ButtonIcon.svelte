@@ -23,7 +23,7 @@
     let selectedIcon = icons[0]
     let filtered = icon ? icons.filter(i => i.name == icon.toLowerCase()) : [ icons[0] ]
     selectedIcon = filtered.length > 0 ? filtered[0] : icons[0]
-    console.log(selectedIcon)
+    // console.log(selectedIcon)
 
     let dispatch = createEventDispatcher()
     const handleMouseUp = () => {

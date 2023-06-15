@@ -5,9 +5,12 @@ let week = 1
 let year = now.getFullYear()
 
 const getCurrentWeekNumber = () => {
-    let yearNow = new Date(now.getFullYear(), 0, 1) 
+    let yearNow = new Date(now.getFullYear(), 0, 1)
+    console.log(`yearNow`, yearNow)
     let days = Math.floor((now - yearNow) / (24 * 60 * 60 * 1000))
-    let week = Math.ceil((now.getDay() + days + 1) / 7)
+    console.log(`days`, days)
+    let week = Math.floor((now.getDay() + days + 1) / 7)
+    console.log(`week`, week)
 
     console.log(`current week number is ${week}`)
     return week
@@ -16,7 +19,7 @@ week = getCurrentWeekNumber()
 
 const getStartOfWeek = () => {
     let simple = new Date(year, 0, ((week - 1) * 7) + 1)
-    console.log('simple', simple)
+    console.log('getStartOfWeek simple', simple)
     let dow = simple.getDay()
     let ISOweekStart = simple
     
@@ -27,13 +30,13 @@ const getStartOfWeek = () => {
         ISOweekStart.setDate(simple.getDate() - simple.getDay() + 8)
     }
 
-    console.log(`ISOweekStart`, ISOweekStart)
+    console.log(`getStartOfWeek ISOweekStart`, ISOweekStart)
     return ISOweekStart;
 }
 
 const getDaysOfWeek = () => {
     let weekStart = getStartOfWeek()
-    console.log(`weekStart`, weekStart)
+    console.log(`getDaysOfWeek weekStart`, weekStart)
     let startDate = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate())
     let weekDays = [{
         date: startDate,
@@ -55,7 +58,7 @@ const getDaysOfWeek = () => {
         })
     }
 
-    console.log(`weekDays`, weekDays)
+    console.log(`getDaysOfWeek weekDays`, weekDays)
     WeekDays.set(weekDays)
 }
 
@@ -89,7 +92,7 @@ const MonthsOfYear = [
 ]
 
 const GetDateName = (dt) => {
-    console.log('dt', dt)
+    // console.log('dt', dt)
     return `${MonthsOfYear[dt.getMonth()]} ${dt.getDate()}, ${dt.getFullYear()}`
 }
 
@@ -119,11 +122,15 @@ export const ResetWeek = () => {
     getDaysOfWeek()
 }
 
+export const DateToString = (dt) => {
+    return `${dt.getFullYear()}_${dt.getMonth()}_${dt.getDate()}`
+}
 getDaysOfWeek()
 
 export const Settings = {
     StartHour: 6,
-    EndHour: 22,
+    EndHour: 18,
     Interval: 30,
     ViewMode: 'time'
 }
+export const DayData = writable({})

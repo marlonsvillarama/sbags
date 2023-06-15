@@ -13,6 +13,7 @@
         dateLabel = weekStart.month == weekEnd.month ?
             `${weekStart.month} ${weekStart.date.getDate()}-${weekEnd.date.getDate()}, ${weekEnd.date.getFullYear()}` :
             `${weekStart.name} - ${weekEnd.name}`
+        console.log(`PageHeader dateLabel`, dateLabel)
     }
 
     let weekDays = []
@@ -30,18 +31,21 @@
     })
 
     const prevWeek = () => {
-        console.log('prevWeek')
+        // console.log('prevWeek')
         PreviousWeek()
+        writeDateLabel()
     }
 
     const nextWeek = () => {
-        console.log('nextWeek')
+        // console.log('nextWeek')
         NextWeek()
+        writeDateLabel()
     }
 
     const resetWeek = () => {
-        console.log('resetWeek')
+        // console.log('resetWeek')
         ResetWeek()
+        writeDateLabel()
     }
 </script>
 

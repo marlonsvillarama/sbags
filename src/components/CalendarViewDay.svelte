@@ -1,6 +1,6 @@
 <script>
     import { onDestroy } from 'svelte'
-    import { Settings } from '../store/calendar'
+    import { DateToString, DayData, Settings } from '../store/calendar'
     import { Events } from '../store/events'
     // import { Resources } from '../store/resources'
     import Tile from './EventTile.svelte'
@@ -19,26 +19,39 @@
     }
 
     let times = []
-    for (let i=Settings.StartHour; i<Settings.EndHour; i++) {
-        let j = i > 12 ? (i - 12) : i;
+    const init = () =>  {
+        times = []
+        for (let i=Settings.StartHour; i<Settings.EndHour; i++) {
+            let j = i > 12 ? (i - 12) : i;
 
-        if (i==Settings.StartHour) {
-            times.push(' ')
-            continue;
+            if (i==Settings.StartHour) {
+                times.push(' ')
+                continue;
+            }
+            times.push(`${j} ${i < 12 ? 'AM' : 'PM'}`)
         }
-        times.push(`${j} ${i < 12 ? 'AM' : 'PM'}`)
     }
+    init()
+
     let events = []
     let dayEvents = []
-    let resources = []
-    let unsubscribeEvents = Events.subscribe(valueEvents => {
+    let resources = {}
+    const unsubscribeEvents = Events.subscribe(valueEvents => {
         // for (const value of Object.values(valueEvents)) {
         //     events.push(value)
         // }
         // console.log('CalendarViewDay events', events)
         dayEvents = valueEvents.filter(e => isEqual(e.startDate, day.date) == true)
-        resources = [...new Set(dayEvents.map(e => e.uid))]
         console.log('*** CalendarViewDay dayEvents ***', dayEvents)
+        
+        resources = [...new Set(dayEvents.map(e => e.uid))]
+        DayData.update(e => {
+            let key = DateToString(day.date)
+            e[key] = e[key] || {}
+            e[key].resources = resources
+            return e
+        })
+        // Resources.update(e => resources)
     })
     onDestroy(() => {
         unsubscribeEvents()

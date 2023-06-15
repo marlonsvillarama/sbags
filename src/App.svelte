@@ -2,6 +2,7 @@
 	import 'normalize.css'
   	import './assets/css/global.css'
   	import './assets/css/calendar.css'
+  	import './assets/css/tile.css'
 
 	import PageHeader from './components/PageHeader.svelte'
 	import PageFooter from './components/PageFooter.svelte'
