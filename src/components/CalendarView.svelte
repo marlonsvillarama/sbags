@@ -1,26 +1,30 @@
 <script>
     import { onDestroy } from 'svelte';
-    import { Settings, WeekDays } from '../store/calendar'
+    import { DayData, Settings, WeekDays } from '../store/calendar'
     import { Events } from '../store/events'
-    import { Resources } from '../store/resources'
+    import { Employees, Resources } from '../store/resources'
     import CalendarViewDay from './CalendarViewDay.svelte'
     import { db } from "../firebase.js"
     // import { collectionData } from 'rxfire/firestore'
     // import { startWith } from 'rxjs/operators'
 
     let times = []
-    for (let i=Settings.StartHour; i<Settings.EndHour; i++) {
-        let j = i > 12 ? (i - 12) : i;
-
-        if (i==Settings.StartHour) {
-            times.push(' ')
-            continue;
-        }
-        times.push(`${j} ${i < 12 ? 'AM' : 'PM'}`)
-    }
-
     let weekDays = []
     let events = []
+    
+
+    const init = () => {
+        for (let i=Settings.StartHour; i<Settings.EndHour; i++) {
+            let j = i > 12 ? (i - 12) : i;
+
+            if (i==Settings.StartHour) {
+                times.push(' ')
+                continue;
+            }
+            times.push(`${j} ${i < 12 ? 'AM' : 'PM'}`)
+        }
+    }
+    init()
 
     const unsubscribeWeek = WeekDays.subscribe(value => {
         weekDays = value;
@@ -36,11 +40,12 @@
                 Events.set([])
                 console.log(`>> CalendarView data`, data)
                 let eventDocs = data.docs.map(doc => {
+                    let d = doc.data()
                     return {
-                        uid: doc.data().uid,
-                        break: doc.data().break,
-                        startDate: doc.data().startdate.toDate(),
-                        endDate: doc.data().enddate.toDate()
+                        uid: d.uid,
+                        break: d.break,
+                        startDate: d.startdate.toDate(),
+                        endDate: d.enddate.toDate()
                     }
                 })
                 for (const value of Object.values(eventDocs)) {
@@ -51,6 +56,25 @@
 
                 let resources = [...new Set(events.map(e => e.uid))]
                 Resources.update(e => resources)
+            })
+        
+        db.collection('employees')
+            .where('active', '==', 'true')
+            .orderBy('uid')
+            .onSnapshot(data => {
+                Employees.set({})
+                let empDocs = data.docs.map(doc => {
+                    let d = doc.data()
+                    return {
+                        uid: d.uid,
+                        active: d.active,
+                        maxHours: d.maxhours,
+                        blocks: d.blocks
+                    }
+                })
+                for (const value of Object.values(empDocs)) {
+
+                }
             })
     })
     onDestroy(() => {
