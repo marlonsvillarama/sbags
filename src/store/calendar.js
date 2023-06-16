@@ -7,7 +7,7 @@ let year = now.getFullYear()
 const getCurrentWeekNumber = () => {
     let yearNow = new Date(now.getFullYear(), 0, 1)
     console.log(`yearNow`, yearNow)
-    let days = Math.floor((now - yearNow) / (24 * 60 * 60 * 1000))
+    let days = Math.floor((now.getTime() - yearNow.getTime()) / (24 * 60 * 60 * 1000))
     console.log(`days`, days)
     let week = Math.floor((now.getDay() + days + 1) / 7)
     console.log(`week`, week)
@@ -134,3 +134,6 @@ export const Settings = {
     ViewMode: 'time'
 }
 export const DayData = writable({})
+export const TimeOffs = writable([])
+export const Holidays = writable([])
+export const WeekSettings = writable({})

@@ -1,6 +1,6 @@
 <script>
     import { onDestroy } from 'svelte';
-    import { DayData, Settings, WeekDays } from '../store/calendar'
+    import { DayData, Holidays, Settings, TimeOffs, WeekDays, WeekSettings } from '../store/calendar'
     import { Events } from '../store/events'
     import { Employees, Resources } from '../store/resources'
     import CalendarViewDay from './CalendarViewDay.svelte'
@@ -11,7 +11,10 @@
     let times = []
     let weekDays = []
     let events = []
-    
+    let employees = []
+    let timeOffs = []
+    let holidays = []
+    let weekSettings = {}
 
     const init = () => {
         for (let i=Settings.StartHour; i<Settings.EndHour; i++) {
@@ -48,6 +51,7 @@
                         endDate: d.enddate.toDate()
                     }
                 })
+                events = []
                 for (const value of Object.values(eventDocs)) {
                     events.push(value)
                 }
@@ -59,10 +63,10 @@
             })
         
         db.collection('employees')
-            .where('active', '==', 'true')
+            .where('active', '==', true)
             .orderBy('uid')
             .onSnapshot(data => {
-                Employees.set({})
+                Employees.set([])
                 let empDocs = data.docs.map(doc => {
                     let d = doc.data()
                     return {
@@ -72,9 +76,50 @@
                         blocks: d.blocks
                     }
                 })
+                employees = []
                 for (const value of Object.values(empDocs)) {
-
+                    employees.push(value)
                 }
+                console.log(`CalendarView employees`, employees)
+                Employees.update(e => employees)
+            })
+        
+        db.collection('timeoffs')
+            .where('date', '>=', weekDays[0].date)
+            .where('date', '<', nextDay)
+            .orderBy('date')
+            .onSnapshot(data => {
+                TimeOffs.set([])
+                timeOffs = []
+                let ptoDocs = data.docs.map(doc => doc.data())
+                for (const value of Object.values(ptoDocs)) {
+                    timeOffs.push(value)
+                }
+                TimeOffs.set(timeOffs)
+            })
+
+        db.collection('holidays')
+            .where('date', '>=', weekDays[0].date)
+            .where('date', '<', nextDay)
+            .orderBy('date')
+            .onSnapshot(data => {
+                Holidays.set([])
+                holidays = []
+                let holDocs = data.docs.map(doc => doc.data())
+                for (const value of Object.values(holDocs)) {
+                    holidays.push(value)
+                }
+                Holidays.set(holidays)
+            })
+        
+        db.collection('weeks')
+            .where('start', '>=', weekDays[0].date)
+            .where('start', '<', nextDay)
+            .orderBy('start')
+            .onSnapshot(data => {
+                let results = data.docs.map(doc => doc.data());
+                weekSettings = results.length > 0 ? results[0] : {}
+                console.log('*** weekSettings ***', weekSettings)
             })
     })
     onDestroy(() => {

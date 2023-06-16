@@ -33,7 +33,7 @@
     }
     init()
 
-    let events = []
+    // let events = []
     let dayEvents = []
     let resources = {}
     const unsubscribeEvents = Events.subscribe(valueEvents => {

@@ -2,7 +2,7 @@
     import { onDestroy } from 'svelte'
     import { createEventDispatcher } from 'svelte'
     import { DateToString, DayData, Settings } from '../store/calendar'
-    import { Resources } from '../store/resources'
+    import { Employees, Resources } from '../store/resources'
     export let event = null
     const BASE_WIDTH = 90
     let height = 0
@@ -13,6 +13,7 @@
     let tileStyle = ''
     let timeSpan = ''
     let now = new Date()
+    let employees = []
     let resources = []
     let dayData
 
@@ -79,14 +80,19 @@
         // console.log(' >> Tile height', height)
         // console.log(' >> Tile top', top)
 
+        console.log(` ==> uid=${event.uid}`, resources.indexOf(event.uid));
         tileClass = `tile ${ event.break == true ? 'tile-break' : `tile-${resources.indexOf(event.uid) + 1}`}`
         // console.log(' >> Tile tileClass', tileClass)
         tileStyle = `top: ${top}px; left: ${left}%; width: ${width}%; height: ${height}px`
     }
     initTile()
 
-    const unsubscribeRes = Resources.subscribe(valueRes => {
-        resources = valueRes
+    const unsubscribeEmp = Employees.subscribe(value => {
+        employees = value
+        console.log('  >> EventTile employees', resources)
+    })
+    const unsubscribeRes = Resources.subscribe(value => {
+        resources = value
         console.log('  >> EventTile resources', resources)
     })
     const unsubscribeDay = DayData.subscribe(value => {
@@ -95,6 +101,7 @@
         initTile()
     })
     onDestroy(() => {
+        unsubscribeEmp()
         unsubscribeRes()
         unsubscribeDay()
     })

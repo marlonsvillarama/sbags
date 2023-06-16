@@ -1,18 +1,60 @@
 <script>
     import { onDestroy } from 'svelte';
-    import { WeekDays } from '../store/calendar'
+    import { DateToString, Holidays, TimeOffs, WeekDays } from '../store/calendar'
+    import Button from './Button.svelte';
+    import PTOTile from './PTOTile.svelte'
+    // import { Employees } from '../store/resources'
+    // import App from '../App.svelte';
 
+    /* let timeOffs = []
+    let holidays = []
+    const unsubscribePTO = TimeOffs.subscribe(value => {
+        timeOffs = value
+        console.log(`CalendarViewHeader timeOffs`, timeOffs)
+    })
+    const unsubscribeHolidays = Holidays.subscribe(value => {
+        holidays = value
+        console.log(`CalendarViewHeader holidays`, holidays)
+    })
+    onDestroy(() => {
+        unsubscribePTO()
+        unsubscribeHolidays()
+    }) */
 </script>
 
 <div class="cal-header">
     <div class="cal-days">
-        <div class="cal-side"></div>
+        <div class="cal-side week-totals">
+            <span class="col-day">Total</span>
+            <span class="col-date">115</span>
+            <div class="col-sub">Hours</div>
+        </div>
         <div class="cal-lines"></div>
         {#each $WeekDays as day}
             <div class="cal-col">
                 <span class="col-day">{day.dayOfWeek}</span>
                 <span class="col-date">{day.date.getDate()}</span>
                 <div class="col-sub">40 hours</div>
+            </div>
+        {/each}
+        <div class="cal-scroll"></div>
+    </div>
+    <div class="cal-subheader">
+        <div class="cal-side">PTOs</div>
+        <div class="cal-lines"></div>
+        {#each $WeekDays as day}
+            <div class="cal-allday">
+                {#each $Holidays as holiday}
+                    {#if DateToString(holiday.date.toDate()) == DateToString(day.date)}
+                        <PTOTile holiday={holiday} />
+                    {/if}
+                {/each}
+                {#each $TimeOffs as pto}
+                    <!-- <pre>{DateToString(pto.date.toDate())} == {DateToString(day.date)}</pre>  ; -->
+                    {#if DateToString(pto.date.toDate()) == DateToString(day.date)}
+                        <PTOTile pto={pto} />
+                    {/if}
+                {/each}
             </div>
         {/each}
         <div class="cal-scroll"></div>
@@ -29,34 +71,56 @@
         gap: 0;
         /* border-top: 1px solid var(--color-strand-red); */
         border-bottom: 1px solid var(--border-gray-lite);
-        padding: 0.75rem 0 0.5rem;
+        padding: 0.75rem 0 0;
         box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
     }
-    .cal-days {
+    .cal-subheader {
+        border-top: 1px solid var(--border-gray-lite);
+        /* padding: 0.25rem 0; */
+    }
+    .cal-days, .cal-subheader {
         display: flex;
         flex-direction: row;
         gap: 0;
         /* border-bottom: 1px solid var(--border-gray-lite); */
     }
+    .cal-days {
+        padding-bottom: 0.5rem;
+    }
     .cal-col {
+        position: relative;
         display: flex;
         flex-direction: column;
         text-align: center;
-        gap: 0.5rem;
+        /* gap: 0.25rem; */
         flex: 1;
-        font-weight: 600;
     }
     .col-day {
         font-size: 1rem;
-        color: var(--font-color-gray-lite);
+        color: var(--font-color-gray-med);
+        font-weight: 600;
     }
     .col-date {
         font-size: 2.25rem;
         color: var(--font-color-gray-med);
+        font-weight: 600;
     }
     .col-sub {
         font-size: 1.25rem;
         color: var(--font-color-gray-lite);
+    }
+    .cal-allday {
+        flex: 1;
+    }
+    .cal-side {
+        text-align: center;
+        font-weight: 700;
+        /* line-height: 1.5rem; */
+    }
+    .cal-side.week-totals {
+        display: flex;
+        flex-direction: column;
+        /* gap: 1rem; */
     }
     /* .cal-days > div, .cal-subdays > div {
         text-align: center;

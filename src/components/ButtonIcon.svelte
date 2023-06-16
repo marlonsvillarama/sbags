@@ -5,17 +5,20 @@
         CalendarIcon,
         ChevronLeftIcon,
         ChevronRightIcon,
+        ClockIcon,
         SettingsIcon,
         UserIcon
     } from "svelte-feather-icons";
 
     export let icon = 'alert-circle'
+    export let title = 'Button'
 
     const icons = [
         { name: 'alert-circle',     component: AlertCircleIcon },
         { name: 'calendar',         component: CalendarIcon },
         { name: 'chevron-left',     component: ChevronLeftIcon },
         { name: 'chevron-right',    component: ChevronRightIcon },
+        { name: 'clock',            component: ClockIcon },
         { name: 'settings',         component: SettingsIcon },
         { name: 'user',             component: UserIcon }
     ]
@@ -31,7 +34,7 @@
     }
 </script>
 
-<button class="button" on:mouseup={handleMouseUp}>
+<button class="button" on:mouseup={handleMouseUp} title={title}>
     <svelte:component this={selectedIcon.component} size="20" />
 </button>
 
