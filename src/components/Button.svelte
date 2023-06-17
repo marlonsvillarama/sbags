@@ -9,7 +9,10 @@
         ClockIcon,
         CoffeeIcon,
         CopyIcon,
+        Edit3Icon,
+        GridIcon,
         SettingsIcon,
+        Trash2Icon,
         UserIcon,
 
         UsersIcon
@@ -29,7 +32,10 @@
         { name: 'clock',            component: ClockIcon },
         { name: 'coffee',           component: CoffeeIcon },
         { name: 'copy',             component: CopyIcon },
+        { name: 'edit',             component: Edit3Icon },
+        { name: 'grid',             component: GridIcon },
         { name: 'settings',         component: SettingsIcon },
+        { name: 'trash',            component: Trash2Icon },
         { name: 'user',             component: UserIcon },
         { name: 'users',            component: UsersIcon }
     ]
@@ -38,7 +44,21 @@
     let buttonClass = ''
 
     const init = () => {
-        buttonClass = `button ${ type == 'button' ? 'btn-def' : 'btn-icon' }`
+        switch(type.toLowerCase()) {
+            case 'icon': {
+                buttonClass = 'button btn-icon';
+                break;
+            }
+            case 'cta': {
+                buttonClass = 'button btn-action';
+                break;
+            }
+            default: {
+                buttonClass = 'button btn-def';
+                break;
+            }
+        }
+        // buttonClass = `button ${ type == 'button' ? 'btn-def' : 'btn-icon' }`
 
         if (!icon) {
             return
