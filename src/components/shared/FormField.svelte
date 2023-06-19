@@ -17,14 +17,16 @@
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
-        width: 20rem;
+        /* width: 20rem; */
     }
     .fld-label {
-        font-size: 1.25rem;
+        font-size: 1.125rem;
         font-weight: 500;
         color: var(--font-color-gray-med);
     }
     .fld-label.required::after {
-        content: ' - (Required)'
+        content: ' - (Required)';
+        font-weight: 400;
+        font-style: italic;
     }
 </style>

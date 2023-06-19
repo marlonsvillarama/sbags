@@ -24,6 +24,7 @@
     export let id = ''
     export let type = 'button'
     export let label = ''
+    export let width = ''
 
     const icons = [
         { name: 'alert-circle',     component: AlertCircleIcon },
