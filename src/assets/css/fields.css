@@ -1,0 +1,22 @@
+.fld {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    /* width: 20rem; */
+}
+.fld-label {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: var(--font-color-gray-med);
+}
+.fld-label.required::after {
+    content: ' - (Required)';
+    font-weight: 400;
+    font-style: italic;
+}
+.fld-error {
+    font-size: 1rem;
+    font-style: italic;
+    color: red;
+    font-weight: 500;
+}

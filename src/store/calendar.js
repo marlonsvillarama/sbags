@@ -62,10 +62,6 @@ const getDaysOfWeek = () => {
     WeekDays.set(weekDays)
 }
 
-// let now = new Date()
-// let currentWeek = getCurrentWeekNumber()
-// let currentYear = now.getFullYear()
-
 const DaysOfWeek = [
     'Mon',
     'Tue',
@@ -92,7 +88,6 @@ const MonthsOfYear = [
 ]
 
 const GetDateName = (dt) => {
-    // console.log('dt', dt)
     return `${MonthsOfYear[dt.getMonth()]} ${dt.getDate()}, ${dt.getFullYear()}`
 }
 

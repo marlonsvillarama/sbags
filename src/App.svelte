@@ -3,6 +3,7 @@
   	import './assets/css/global.css'
   	import './assets/css/calendar.css'
   	import './assets/css/tile.css'
+	import './assets/css/fields.css'
 
 	import { navigate, Route, Router } from 'svelte-routing'
 	import PageHeader from './components/page/PageHeader.svelte'

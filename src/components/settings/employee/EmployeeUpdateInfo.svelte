@@ -6,8 +6,11 @@
     import { CurrentEmployee, Employees } from "../../../store/resources";
     
     import Button from "../../shared/Button.svelte";
-    import Checkbox from "../../shared/Checkbox.svelte";
-    import FormField from "../../shared/FormField.svelte";
+    import Checkbox from "../../shared/form/Checkbox.svelte";
+    import FormField from "../../shared/form/FormField.svelte";
+    import InputText from "../../shared/form/InputText.svelte";
+    import InputCheckbox from "../../shared/form/InputCheckbox.svelte";
+    import InputNumber from "../../shared/form/InputNumber.svelte";
     import Modal from "../../shared/Modal.svelte";
 
     console.log(`EmployeeUpdateInfo CurrentEmployee`, $CurrentEmployee)
@@ -16,6 +19,7 @@
     let employeeName = $CurrentEmployee ? $CurrentEmployee.uid : ''
     let employeeActive = $CurrentEmployee ? $CurrentEmployee.active : true
     let employeeHours = 20
+    let ctaLabel = `${$CurrentEmployee.id ? 'Update' : 'Create'} Employee`
 
     const handleUpdate = async () => {
         $CurrentEmployee = {
@@ -27,11 +31,31 @@
         console.log(`EmployeeUpdateInfo handleUpdate CurrentEmployee`, $CurrentEmployee)
 
         await setDoc(doc(db, 'employees', $CurrentEmployee.id), { ...$CurrentEmployee })
-        dispatch('update', { dirty: false })
+
+        $Employees.update(list => {
+            let current = list.filter(e => e.id == $CurrentEmployee.id)
+            if (current.length <= 0) {
+                list.push({ ...$CurrentEmployee })
+            }
+            current = {
+                ...$CurrentEmployee,
+                uid: employeeName,
+                active: employeeActive,
+                maxhours: employeeHours
+            }
+            return list
+        })
+        dispatch('action', {
+            action: 'update',
+            dirty: false
+        })
     }
 
     const handleCancel = () => {
-        dispatch('cancel', { dirty: isDirty })
+        dispatch('action', {
+            action: 'cancel',
+            dirty: isDirty
+        })
     }
 
     const makeDirty = () => {
@@ -40,26 +64,18 @@
 </script>
 
 <div class="form">
-    <FormField label="Employee name" required>
-        <input bind:value={employeeName} type="text" id="employeeName" name="employeeName" on:change={makeDirty} placeholder="Employee name..." />
-    </FormField>
-    <FormField label="Active">
-        <Checkbox bind:checked={employeeActive} on:check={makeDirty} on:uncheck={makeDirty} />
-    </FormField>
-    <FormField label="Hours per week" required>
-        <div class="quantity">
-            <input bind:value={employeeHours} min="1" max="40" type="number" on:change={makeDirty} />
-        </div>
-    </FormField>
+    <InputText label="Employee name" required bind:value={employeeName} on:change={makeDirty} />
+    <InputCheckbox label="Is Active" bind:checked={employeeActive} on:check={makeDirty} on:uncheck={makeDirty} />
+    <InputNumber label="Hours per week" required bind:value={employeeHours} min=1 max=40 on:change={makeDirty} />
+
     <div class="actions">
-        <Button label="Create Employee" type="cta" on:mouseup={handleUpdate} />
-        <Button label="Cancel" />
+        <Button label={ctaLabel} type="cta" on:mouseup={handleUpdate} />
+        <Button label="Cancel" on:mouseup={handleCancel} />
     </div>
 </div>
 
 <style>
     .form {
-        /* border: 1px solid red; */
         padding: 1rem 0;
         display: flex;
         flex-direction: column;
@@ -70,6 +86,6 @@
         flex-direction: row;
         gap: 2rem;
         align-items: center;
-        padding-top: 5rem;
+        padding-top: 4rem;
     }
 </style>

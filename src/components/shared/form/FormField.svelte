@@ -13,11 +13,11 @@
 </div>
 
 <style>
-    .fld {
+    /* .fld {
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
-        /* width: 20rem; */
+        /* width: 20rem; *
     }
     .fld-label {
         font-size: 1.125rem;
@@ -28,5 +28,5 @@
         content: ' - (Required)';
         font-weight: 400;
         font-style: italic;
-    }
+    } */
 </style>

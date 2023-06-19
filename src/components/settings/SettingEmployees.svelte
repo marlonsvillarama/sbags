@@ -89,6 +89,11 @@
                 navigate(data.page)
                 break;
             }
+            case 'cancel':
+            case 'update': {
+                navigate('list')
+                break;
+            }
             default: break;
         }
     }
@@ -97,11 +102,6 @@
 <div class="header">
    <div class="header-title">
         <span class="title">Employees</span>
-        {#if selectedPage.name != 'list'}
-            <ul class="bc">
-                <li>Employees</li>
-            </ul>
-        {/if}
     </div>
     
     {#if selectedPage.name == 'list'}
