@@ -11,15 +11,17 @@
         CopyIcon,
         Edit3Icon,
         GridIcon,
+        PlusIcon,
         SettingsIcon,
         Trash2Icon,
         UserIcon,
-
+        UserPlusIcon,
         UsersIcon
 
     } from "svelte-feather-icons";
 
     export let icon = ''
+    export let id = ''
     export let type = 'button'
     export let label = ''
 
@@ -34,9 +36,11 @@
         { name: 'copy',             component: CopyIcon },
         { name: 'edit',             component: Edit3Icon },
         { name: 'grid',             component: GridIcon },
+        { name: 'plus',             component: PlusIcon },
         { name: 'settings',         component: SettingsIcon },
         { name: 'trash',            component: Trash2Icon },
         { name: 'user',             component: UserIcon },
+        { name: 'user-plus',        component: UserPlusIcon },
         { name: 'users',            component: UsersIcon }
     ]
 
@@ -75,7 +79,7 @@
     }
 </script>
 
-<div class={buttonClass} on:mouseup={onMouseUp}>
+<div id={id} class={buttonClass} on:mouseup={onMouseUp}>
     {#if icon}
         <svelte:component this={selectedIcon.component} size={ label ? "20" : "24" } />
     {/if}

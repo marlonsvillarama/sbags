@@ -6,9 +6,9 @@
     import SettingTimeOffs from './SettingTimeOffs.svelte';
 
     const pages = [
-        { name: 'employees',    component: SettingEmployees  },
-        { name: 'hours',        component: SettingHours  },
-        { name: 'time offs',     component: SettingTimeOffs }
+        { name: 'employees',            component: SettingEmployees },
+        { name: 'hours',                component: SettingHours },
+        { name: 'time offs',            component: SettingTimeOffs }
     ]
 
     const loadComponent = (page) => {
@@ -16,21 +16,21 @@
         console.log(filtered)
         return filtered.length > 0 ? filtered[0] : pages[0]
     }
-
-    // let activePage = 'employees'
     let selectedPage = loadComponent('employees')
+    
 	const changePage = (page) => {
-        // activePage = page
         console.log('SettingsView changePage route', page)
         selectedPage = loadComponent(page)
 	}
-</script>
+</script> 
 
 <div class="container">
     <Sidebar on:change={(e)=>changePage(e.detail.page)}/>
     <div class="content">
-        <span class="title">{selectedPage.name}</span>
-        <svelte:component this={selectedPage.component} />
+        <svelte:component this={selectedPage.component}
+            on:updateinfo={()=>changePage('employee-info')}
+            on:viewschedule={()=>changePage('employee-schedule')}
+        />
     </div>
 </div>
 

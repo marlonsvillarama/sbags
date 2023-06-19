@@ -1,25 +1,32 @@
 <script>
     import { onDestroy } from 'svelte';
-    import { DateToString, Holidays, TimeOffs, WeekDays } from '../store/calendar'
-    import Button from './Button.svelte';
+    import { GetDateKey, Holidays, TimeOffs, WeekDays } from '../../store/calendar'
+    import Button from '../shared/Button.svelte';
     import PTOTile from './PTOTile.svelte'
+    import { Employees } from '../../store/resources';
     // import { Employees } from '../store/resources'
     // import App from '../App.svelte';
 
-    /* let timeOffs = []
+    let timeOffs = []
     let holidays = []
+    let employees = []
     const unsubscribePTO = TimeOffs.subscribe(value => {
         timeOffs = value
+        timeOffs = timeOffs.filter(pto => $Employees.map(e=>e.id).indexOf(pto.employee) >= 0)
         console.log(`CalendarViewHeader timeOffs`, timeOffs)
     })
     const unsubscribeHolidays = Holidays.subscribe(value => {
         holidays = value
         console.log(`CalendarViewHeader holidays`, holidays)
     })
+    const unsubscribeEmp = Employees.subscribe(value => {
+        employees = value
+        timeOffs = timeOffs.filter(pto => $Employees.map(e=>e.id).indexOf(pto.employee) >= 0)
+    })
     onDestroy(() => {
         unsubscribePTO()
         unsubscribeHolidays()
-    }) */
+    })
 </script>
 
 <div class="cal-header">
@@ -45,13 +52,13 @@
         {#each $WeekDays as day}
             <div class="cal-allday">
                 {#each $Holidays as holiday}
-                    {#if DateToString(holiday.date.toDate()) == DateToString(day.date)}
+                    {#if GetDateKey(holiday.date.toDate()) == GetDateKey(day.date)}
                         <PTOTile holiday={holiday} />
                     {/if}
                 {/each}
                 {#each $TimeOffs as pto}
-                    <!-- <pre>{DateToString(pto.date.toDate())} == {DateToString(day.date)}</pre>  ; -->
-                    {#if DateToString(pto.date.toDate()) == DateToString(day.date)}
+                    <!-- <pre>{GetDateKey(pto.date.toDate())} == {GetDateKey(day.date)}</pre>  ; -->
+                    {#if GetDateKey(pto.date.toDate()) == GetDateKey(day.date)}
                         <PTOTile pto={pto} />
                     {/if}
                 {/each}

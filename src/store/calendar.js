@@ -122,9 +122,12 @@ export const ResetWeek = () => {
     getDaysOfWeek()
 }
 
-export const DateToString = (dt) => {
+export const GetDateKey = (dt) => {
+    // console.log(`+++ GetDateKey = ${dt.getFullYear()}_${dt.getMonth()}_${dt.getDate()} for date = `, dt)
     return `${dt.getFullYear()}_${dt.getMonth()}_${dt.getDate()}`
 }
+
+export const DateToString = (dt) => {}
 getDaysOfWeek()
 
 export const Settings = {

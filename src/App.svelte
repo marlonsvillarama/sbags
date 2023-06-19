@@ -5,11 +5,11 @@
   	import './assets/css/tile.css'
 
 	import { navigate, Route, Router } from 'svelte-routing'
-	import PageHeader from './components/PageHeader.svelte'
-	import PageFooter from './components/PageFooter.svelte'
-	import CalendarView from './components/CalendarView.svelte'
-	import CalendarViewHeader from './components/CalendarViewHeader.svelte'
-	import SettingsView from './components/SettingsView.svelte'
+	import PageHeader from './components/page/PageHeader.svelte'
+	import PageFooter from './components/page/PageFooter.svelte'
+	import CalendarView from './components/calendar/CalendarView.svelte'
+	import CalendarViewHeader from './components/calendar/CalendarViewHeader.svelte'
+	import SettingsView from './components/settings/SettingsView.svelte'
 
 	const navigateRoute = (route) => {
 		navigate(`/${route}`)

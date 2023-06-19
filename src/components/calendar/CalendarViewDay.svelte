@@ -1,20 +1,16 @@
 <script>
     import { onDestroy } from 'svelte'
-    import { DateToString, DayData, Settings } from '../store/calendar'
-    import { Events } from '../store/events'
-    // import { Resources } from '../store/resources'
+    import { GetDateKey, DayData, Settings } from '../../store/calendar'
+    import { Events } from '../../store/events'
+    import { Employees } from '../../store/resources'
     import Tile from './EventTile.svelte'
 
     export let day = {}
-    // console.log(`CalendarViewDay day`, day)
 
     const isEqual = (d1, d2) => {
-        // console.log('  >> isEqual d1', d1)
-        // console.log('  >> isEqual d2', d2)
         let result = d1.getFullYear() == d2.getFullYear() &&
             d1.getMonth() == d2.getMonth() &&
             d1.getDate() == d2.getDate()
-        // console.log(' >> isEqual result', result)
         return result
     }
 
@@ -33,32 +29,26 @@
     }
     init()
 
-    // let events = []
     let dayEvents = []
     let resources = {}
     const unsubscribeEvents = Events.subscribe(valueEvents => {
-        // for (const value of Object.values(valueEvents)) {
-        //     events.push(value)
-        // }
-        // console.log('CalendarViewDay events', events)
-        dayEvents = valueEvents.filter(e => isEqual(e.startDate, day.date) == true)
+        dayEvents = valueEvents.filter(e => {
+            return isEqual(e.startdate.toDate(), day.date) == true &&
+                $Employees.filter(emp => emp.active == true && emp.id == e.employee).length > 0
+        })
         console.log('*** CalendarViewDay dayEvents ***', dayEvents)
         
-        resources = [...new Set(dayEvents.map(e => e.uid))]
+        resources = [...new Set(dayEvents.map(e => e.employee))]
         DayData.update(e => {
-            let key = DateToString(day.date)
+            let key = GetDateKey(day.date)
             e[key] = e[key] || {}
             e[key].resources = resources
             return e
         })
-        // Resources.update(e => resources)
     })
     onDestroy(() => {
         unsubscribeEvents()
     })
-
-    // console.log(`Events`, events)
-    // console.log(`dayEvents`, dayEvents)
 </script>
 
 <div class="cal-col">

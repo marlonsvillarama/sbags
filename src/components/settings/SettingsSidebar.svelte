@@ -1,7 +1,7 @@
 <script>
     import { createEventDispatcher } from "svelte";
-    import ButtonList from "./ButtonList.svelte";
-    import Button from "./Button.svelte";
+    import ButtonList from "../shared/ButtonList.svelte";
+    import Button from "../shared/Button.svelte";
 
     let dispatch = createEventDispatcher()
     let active = ''

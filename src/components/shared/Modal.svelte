@@ -1,20 +1,20 @@
 <script>
     import { createEventDispatcher } from "svelte";
-    import Button from "./Button.svelte";
-    export let type = 'alert'
-    export let title = 'Default title'
+    import { ModalData, modalText, modalTitle, modalType } from "../../store/modal";
+    
 
     let okClass = 'button btn-cta'
     let dispatch = createEventDispatcher()
+    let text = ''
+    let title = 'Default title'
+    let type = 'alert'
 
     const handleConfirm = () => {
         dispatch('confirm', {})
-        hide()
     }
 
     const handleCancel = () => {
         dispatch('cancel', {})
-        hide()
     }
 
     export const show = () => {
@@ -37,16 +37,16 @@
 <div data-overlay class="overlay"></div>
 <div data-modal class="modal">
     <div class="modal-header">
-        {title}
+        {$ModalData.title}
     </div>
     <div class="modal-content">
-        <slot></slot>
+        {$ModalData.text}
     </div>
     <footer>
-        {#if type == 'confirm'}
+        {#if $ModalData.type == 'confirm'}
             <button type="button" class="btn-action" on:click={handleConfirm}>Confirm</button>
         {/if}
-        <button type="button" class="btn-def" on:click={handleCancel}>{type=='confirm' ? 'Cancel' : 'Close'}</button>
+        <button type="button" class="btn-def" on:click={handleCancel}>{$ModalData.type=='confirm' ? 'Cancel' : 'Close'}</button>
     </footer>
 </div>
 
@@ -77,6 +77,9 @@
         color: var(--font-color-gray-med);
         font-weight: 700;
         font-size: 1.5rem;
+    }
+    .modal-content {
+        line-height: 1.5rem;
     }
     footer {
         display: flex;

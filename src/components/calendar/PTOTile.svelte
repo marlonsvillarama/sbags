@@ -1,16 +1,16 @@
 <script>
     import { onDestroy } from "svelte";
-    import { Employees, Resources } from '../store/resources'
+    import { Employees, Resources } from '../../store/resources'
 
     let employees = []
     let resources = []
     const unsubscribeEmp = Employees.subscribe(value => {
         employees = value
-        console.log(`PTOTile employees`, employees)
+        // console.log(`PTOTile employees`, employees)
     })
     const unsubscribeRes = Resources.subscribe(value => {
         resources = value
-        console.log(`PTOTile resources`, resources)
+        // console.log(`PTOTile resources`, resources)
     })
     onDestroy(() => {
         unsubscribeEmp()
@@ -23,10 +23,10 @@
     let timeSpan = ''
 
     const initPTO = () => {
-        console.log(`initPTO pto`, pto)
-        console.log(`initPTO resources`, resources)
-        tileClass = `tile tile-${resources.indexOf(pto.uid) + 1} pto`
-        console.log(`  ==> PTOTile tileClass`, tileClass)
+        // console.log(`initPTO pto`, pto)
+        // console.log(`initPTO resources`, resources)
+        tileClass = `tile tile-${resources.indexOf(pto.employee) + 1} pto`
+        // console.log(`  ==> PTOTile tileClass`, tileClass)
 
         if (!pto.start || !pto.end) {
             timeSpan = 'All day'
@@ -42,12 +42,8 @@
         let endDate = pto.end.toDate()
         let endHour = endDate.getHours()
         let endMinutes = endDate.getMinutes()
-        // console.log(' >> Tile endMinutes', endMinutes)
         let endTime = new Date(now.getFullYear(), 0, 1, endHour, endMinutes);
         let duration = (endTime.getTime() - startTime.getTime()) / 60000
-        // console.log(' >> Tile startTime', startTime)
-        // console.log(' >> Tile endTime', endTime)
-        // console.log(' >> Tile duration', duration)
 
         let startTimeText = `${startHour > 12 ? startHour - 12 : startHour}${(startMinutes > 0 ? `:${startMinutes.toString().padStart(2, '0')}` : '')}`
         startTimeText = `${startTimeText}${startHour < 12 ? 'AM' : 'PM'}`
@@ -63,7 +59,7 @@
     }
 
     const init = () => {
-        console.log('PTOTile init')
+        // console.log('PTOTile init')
         if (pto) {
             initPTO()
         }

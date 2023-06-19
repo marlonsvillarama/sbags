@@ -1,8 +1,8 @@
 <script>
     import { createEventDispatcher } from 'svelte';
     import { onDestroy } from 'svelte'
-    import { PreviousWeek, NextWeek, ResetWeek, WeekDays } from "../store/calendar";
-    import Button from "./Button.svelte";
+    import { PreviousWeek, NextWeek, ResetWeek, WeekDays } from "../../store/calendar";
+    import Button from "../shared/Button.svelte";
 
     let dateLabel = ''
     const writeDateLabel = () => {
