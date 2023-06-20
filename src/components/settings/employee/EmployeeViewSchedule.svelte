@@ -5,7 +5,7 @@
     import { CurrentEmployee, Employees } from "../../../store/resources";
 
     import Button from "../../shared/Button.svelte";
-    import Checkbox from "../../shared/Checkbox.svelte";
+    import Checkbox from "../../shared/form/Checkbox.svelte";
     import EmployeeBlockList from "./EmployeeBlockList.svelte";
 
     let dispatch = createEventDispatcher()
@@ -21,7 +21,7 @@
 <div class="form">
     <span>Employee Schedule</span>
 
-    <EmployeeBlockList data={$CurrentEmployee.blocked} />
+    <!-- <EmployeeBlockList data={$CurrentEmployee.blocked} /> -->
 
     <div class="actions">
         <Button label="Save" type="cta" on:mouseup={handleUpdate} />

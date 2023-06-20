@@ -6,32 +6,42 @@
 	import './assets/css/fields.css'
 
 	import { navigate, Route, Router } from 'svelte-routing'
+	import Button from './components/shared/Button.svelte'
 	import PageHeader from './components/page/PageHeader.svelte'
 	import PageFooter from './components/page/PageFooter.svelte'
 	import CalendarView from './components/calendar/CalendarView.svelte'
 	import CalendarViewHeader from './components/calendar/CalendarViewHeader.svelte'
 	import SettingsView from './components/settings/SettingsView.svelte'
+	import Modal from './components/shared/Modal.svelte'
 
 	const navigateRoute = (route) => {
 		navigate(`/${route}`)
+	}
+
+	const handleMouseUp = (data) => {
+		switch(data.action) {
+			case 'navigate': {
+				navigateRoute(data.page)
+				break;
+			}
+			default: break;
+		}
 	}
 </script>
 
 <div class="container">
 	<Router>
 		<Route path="/">
-			<PageHeader mode='home' on:opensettings={()=>navigateRoute('settings')} />
+			<PageHeader mode='home' on:mouseup={(e)=>handleMouseUp(e.detail)} />
 			<CalendarViewHeader />
-			
 			<div class="content">
 				<CalendarView />
 			</div>
-	
 			<PageFooter />
 		</Route>
 	
 		<Route path="/settings">
-			<PageHeader mode='settings' on:openhome={()=>navigateRoute('')} />
+			<PageHeader mode='settings' on:mouseup={(e)=>handleMouseUp(e.detail)} />
 			<SettingsView />
 		</Route>
 	</Router>

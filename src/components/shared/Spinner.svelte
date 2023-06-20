@@ -48,5 +48,7 @@
         flex-direction: row;
         align-items: center;
         gap: 0.5rem;
+        color: var(--color-strand-red);
+        font-weight: 500;
     }
 </style>

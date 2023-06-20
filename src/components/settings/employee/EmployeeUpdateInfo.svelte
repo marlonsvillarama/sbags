@@ -18,10 +18,14 @@
     let isDirty = false
     let employeeName = $CurrentEmployee ? $CurrentEmployee.uid : ''
     let employeeActive = $CurrentEmployee ? $CurrentEmployee.active : true
-    let employeeHours = 20
-    let ctaLabel = `${$CurrentEmployee.id ? 'Update' : 'Create'} Employee`
+    let employeeHours = $CurrentEmployee ? $CurrentEmployee.maxhours : true
+    let ctaLabel = `${$CurrentEmployee ? 'Update' : 'Create'} Employee`
+    let dialog
+    let dialogTitle = ''
+    let dialogContent = ''
+    let dialogType = ''
 
-    const handleUpdate = async () => {
+    const updateEmployee = async () => {
         $CurrentEmployee = {
             ...$CurrentEmployee,
             uid: employeeName,
@@ -32,13 +36,13 @@
 
         await setDoc(doc(db, 'employees', $CurrentEmployee.id), { ...$CurrentEmployee })
 
-        $Employees.update(list => {
+        Employees.update(list => {
             let current = list.filter(e => e.id == $CurrentEmployee.id)
             if (current.length <= 0) {
                 list.push({ ...$CurrentEmployee })
             }
             current = {
-                ...$CurrentEmployee,
+                ...current,
                 uid: employeeName,
                 active: employeeActive,
                 maxhours: employeeHours
@@ -51,28 +55,52 @@
         })
     }
 
-    const handleCancel = () => {
+    const handleUpdate = async () => {
+        if (isDirty) {
+            dialogTitle = 'One or more fields are required.'
+            dialogContent = 'Please make sure all required fields are filled out corectly.'
+            dialogType = 'alert'
+            dialog.show()
+        }
+    }
+
+    const backToList = () => {
         dispatch('action', {
-            action: 'cancel',
-            dirty: isDirty
+            action: 'cancel'
         })
+        $CurrentEmployee = null
+    }
+
+    const handleCancel = () => {
+        if (isDirty) {
+            dialogTitle = 'Your changes will be lost!'
+            dialogContent = 'Are you sure you want to exit this page?'
+            dialogType = 'confirm'
+            dialog.show()
+        }
     }
 
     const makeDirty = () => {
         isDirty = true
+        console.log(`EmployeeUpdateInfo isDirty ==>`, isDirty)
     }
 </script>
 
-<div class="form">
+<div id="" class="form">
     <InputText label="Employee name" required bind:value={employeeName} on:change={makeDirty} />
     <InputCheckbox label="Is Active" bind:checked={employeeActive} on:check={makeDirty} on:uncheck={makeDirty} />
-    <InputNumber label="Hours per week" required bind:value={employeeHours} min=1 max=40 on:change={makeDirty} />
+    <InputNumber label="Hours per week" required bind:value={employeeHours} on:change={makeDirty} />
 
     <div class="actions">
         <Button label={ctaLabel} type="cta" on:mouseup={handleUpdate} />
         <Button label="Cancel" on:mouseup={handleCancel} />
     </div>
 </div>
+
+<Modal bind:this={dialog} type={dialogType} on:confirm={backToList}>
+    <span slot="header">{dialogTitle}</span>
+    <span slot="content">{dialogContent}</span>
+</Modal>
 
 <style>
     .form {

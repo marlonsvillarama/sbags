@@ -1,23 +1,23 @@
 <script>
-    import { createEventDispatcher } from "svelte";
-    import { db } from "../../../firebase";
+    // import { createEventDispatcher } from "svelte";
+    // import { db } from "../../../firebase";
     import { Employees } from "../../../store/resources";
 
     import EmployeeListRow from "./EmployeeListRow.svelte";
-    import Modal from "../../shared/Modal.svelte";
+    // import Modal from "../../shared/Modal.svelte";
 
-    let dispatch = createEventDispatcher()
-    let modalDialog
+    // let dispatch = createEventDispatcher()
+    // let modalDialog
     console.log(`EmployeeList Employees ==>`, $Employees)
 
-    const handleConfirm = () => {}
+    // const handleConfirm = () => {}
 
-    const handleCancel = () => {}
+    // const handleCancel = () => {}
 
-    const handleAction = (data) => {
+    /* const handleAction = (data) => {
         console.log(`EmployeeList handleAction data==>`, data)
-        dispatch('action', { ...data })
-    }
+        // dispatch('action', { ...data })
+    } */
 </script>
 
 <div class="table">
@@ -29,15 +29,16 @@
     </div>
     <div class="content">
         {#each $Employees as employee}
-            <EmployeeListRow employee={employee} on:action={(e) => handleAction(e.detail)} />
+            <!-- <EmployeeListRow employee={employee} on:action={(e) => handleAction(e.detail)} /> -->
+            <EmployeeListRow employee={employee} on:action />
         {/each}
     </div>
 </div>
 
-<Modal bind:this={modalDialog}
+<!-- <Modal bind:this={modalDialog}
     on:confirm={()=>handleConfirm()}
     on:cancel={()=>handleCancel()}
-/>
+/> -->
 
 <style>
     .table {

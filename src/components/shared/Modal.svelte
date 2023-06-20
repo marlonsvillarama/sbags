@@ -1,75 +1,97 @@
 <script>
     import { createEventDispatcher } from "svelte";
-    import { ModalData, modalText, modalTitle, modalType } from "../../store/modal";
+    import { ModalData } from "../../store/modal";
     
-
+    export let type = 'alert'
+    let dialog
     let okClass = 'button btn-cta'
     let dispatch = createEventDispatcher()
-    let text = ''
-    let title = 'Default title'
-    let type = 'alert'
+    let visible = false
 
     const handleConfirm = () => {
         dispatch('confirm', {})
     }
 
-    const handleCancel = () => {
-        dispatch('cancel', {})
-    }
+    /* const handleCancel = () => {
+        // dispatch('cancel', {})
+        hide()
+    } */
 
     export const show = () => {
-        let modal = document.querySelector('[data-modal]')
+        /* let modal = document.querySelector('[data-modal]')
         let overlay = document.querySelector('[data-overlay]')
 
         modal['style'].display = 'block'
-        overlay['style'].display = 'block'
+        overlay['style'].display = 'block' */
+        dialog.showModal()
     }
 
     export const hide = () => {
-        let modal = document.querySelector('[data-modal]')
+        /* let modal = document.querySelector('[data-modal]')
         let overlay = document.querySelector('[data-overlay]')
 
         modal['style'].display = 'none'
-        overlay['style'].display = 'none'
+        overlay['style'].display = 'none' */
+        dialog.close()
     }
 </script>
 
-<div data-overlay class="overlay"></div>
-<div data-modal class="modal">
+<dialog bind:this={dialog}
+    on:close={() => (visible = false)}
+>
     <div class="modal-header">
-        {$ModalData.title}
+        <slot name="header"></slot>
     </div>
+
     <div class="modal-content">
-        {$ModalData.text}
+        <slot name="content"></slot>
     </div>
+    
     <footer>
-        {#if $ModalData.type == 'confirm'}
+        {#if type == 'confirm'}
             <button type="button" class="btn-action" on:click={handleConfirm}>Confirm</button>
         {/if}
+        <button type="button" class="btn-def" on:click={hide}>{type=='confirm' ? 'Cancel' : 'Close'}</button>
+    </footer>
+</dialog>
+<!-- <div data-overlay class="overlay"></div>
+<div data-modal class="modal">
+    <div class="modal-header">
+        -- {$ModalData.title} --Modal title
+    </div>
+    <div class="modal-content"></div>
+    <footer>
+        -- {#if $ModalData.type == 'confirm'} --
+            <button type="button" class="btn-action" on:click={handleConfirm}>Confirm</button>
+        -- {/if} --
         <button type="button" class="btn-def" on:click={handleCancel}>{$ModalData.type=='confirm' ? 'Cancel' : 'Close'}</button>
     </footer>
-</div>
+</div> -->
 
 <style>
-    .overlay {
-        display: none;
+    /* .overlay { */
+    dialog::backdrop {
+        /* display: none;
         position: fixed;
-        inset: 0;
+        inset: 0; */
         background: rgba(0, 0, 0, 0.5);
-        z-index: 9;
+        /* z-index: 9; */
     }
-    .modal {
-        display: none;
+    /* .modal { */
+    dialog {
+        /* display: none; */
         position: fixed;
         top: 20%;
         left: 50%;
         translate: -50% -20%;
         background: white;
         border-radius: 0.5rem;
-        z-index: 10;
-        width: 30rem;
+        border: 0;
+        /* z-index: 10; */
+        width: 40rem;
     }
-    .modal > div {
+    /* .modal > div { */
+    dialog > div {
         padding: 0.75rem 1.25rem;
     }
     .modal-header {
@@ -85,9 +107,9 @@
         display: flex;
         flex-direction: row;
         align-items: center;
-        justify-content: space-between;
+        justify-content:flex-end;
         padding: 1rem 1.25rem;
-        /* background-color: aliceblue; */
+        gap: 1rem;
     }
     button {
         outline: 0;

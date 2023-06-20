@@ -47,11 +47,17 @@
 
     let dispatch = createEventDispatcher()
     const openSettings = () => {
-        dispatch('opensettings', {})
+        dispatch('mouseup', {
+            action: 'navigate',
+            page: 'settings'
+        })
     }
 
     const backToHome = () => {
-        dispatch('openhome', {})
+        dispatch('mouseup', {
+            action: 'navigate',
+            page: ''
+        })
     }
 
     export let mode = 'home'

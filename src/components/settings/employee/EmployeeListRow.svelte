@@ -4,17 +4,20 @@
     import { createEventDispatcher } from "svelte";
     import { db } from "../../../firebase";
     import { CurrentEmployee, Employees } from "../../../store/resources";
-    import { modalText, modalTitle, modalType } from "../../../store/modal";
+    // import { modalText, modalTitle, modalType } from "../../../store/modal";
+    import { ModalData } from "../../../store/modal";
 
     import Button from "../../shared/Button.svelte";
-    import Checkbox from "../../shared/Checkbox.svelte";
+    import Checkbox from "../../shared/form/Checkbox.svelte";
     import EmployeeDeleteButton from "./EmployeeDeleteButton.svelte";
+    // import Spinner from "../../shared/Spinner.svelte";
 
     let dispatch = createEventDispatcher()
-    let employees = []
+    let employees = $Employees
+    console.log(`EmployeeListRow employees ==>`, employees)
 
     const getEmployee = (id) => {
-        let empFiltered = $Employees.filter(e => e.id == id);
+        let empFiltered = employees.filter(e => e.id == id);
         let empToDelete = empFiltered.length > 0 ? empFiltered[0] : null
         console.log(`SettingsEmployees empToDelete, id==>${id}`, empToDelete)
 
@@ -24,16 +27,48 @@
     const toggleEmployee = async (id, toggle) => {
         let emp = getEmployee(id)
         if (!emp) {
-            modalTitle.update(e=>'An error has occured')
-            modalText.update(e=>'Error retrieving employee. Click "Close" to exit this window.')
-            modalType.update(e=>'alert')
+            // modalTitle.update(e=>'An error has occured')
+            // modalText.update(e=>'Error retrieving employee. Click "Close" to exit this window.')
+            // modalType.update(e=>'alert')
 
             return
         }
         
-        const res = await db.collection('employees').doc(emp.id).update({active:toggle})
+        await db.collection('employees').doc(emp.id).update({ active:toggle })
         emp.active = true
         Employees.update(value=>employees)
+    }
+
+    // let doDelete = false
+    /* const deleteEmployee = async (id) => {
+        let emp = getEmployee(id)
+        if (!emp) {
+            // modalTitle.update(e=>'An error has occured')
+            // modalText.update(e=>'Error retrieving employee. Click "Close" to exit this window.')
+            // modalType.update(e=>'alert')
+
+            return
+        }
+        
+        // doDelete = true
+        const res = await db.collection('employees').doc(emp.id).delete()
+        // emp.active = true
+        Employees.update(value=>employees.filter(e=>e.id != id))
+    } */
+
+    const deleteEmployee = async (id) => {
+        // deleteEmployee(employee.id)
+        let emp = getEmployee(id)
+        if (!emp) {
+            // modalTitle.update(e=>'An error has occured')
+            // modalText.update(e=>'Error retrieving employee. Click "Close" to exit this window.')
+            // modalType.update(e=>'alert')
+
+            return
+        }
+
+        await db.collection('employees').doc(emp.id).delete()
+        Employees.update(value=>employees.filter(e=>e.id != emp.id))
     }
 
     const showUpdateInfo = (id) => {
@@ -56,15 +91,14 @@
 <div class="row">
     <span>{employee.uid}</span>
     <span>
-        <Checkbox bind:checked={employee.active}
-            on:check={e=>toggleEmployee(employee.id, true)}
-            on:uncheck={e=>toggleEmployee(employee.id, false)} />
+        <Checkbox bind:checked={employee.active} on:change={e=>toggleEmployee(employee.id, e.detail.checked)} />
     </span>
     <div class="emp-actions">
         <Button label="Update info" icon="edit" type="icon" on:mouseup={()=>showUpdateInfo(employee.id)} />
         <Button label="View schedule" icon="calendar" type="icon" on:mouseup={()=>showSchedule(employee.id)} />
     </div>
-    <EmployeeDeleteButton employee={employee} on:modal={e=>showModal(e.detail)} />
+
+    <EmployeeDeleteButton employee={employee} on:delete={()=>deleteEmployee(employee.id)} />
 </div>
 
 <style>

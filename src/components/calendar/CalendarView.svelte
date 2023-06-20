@@ -1,5 +1,5 @@
 <script>
-    import { onDestroy } from 'svelte';
+    import { onMount, onDestroy } from 'svelte';
     import { DayData, Holidays, Settings, TimeOffs, WeekDays, WeekSettings } from '../../store/calendar'
     import { Events } from '../../store/events'
     import { Employees, Resources } from '../../store/resources'

@@ -6,7 +6,7 @@
     let dispatch = createEventDispatcher()
     const handleChange = (e) => {
         console.log(`Checkbox e==>`, e)
-        dispatch(e.target.checked ? 'check' : 'uncheck', {})
+        dispatch('change', { checked: e.target.checked })
     }
 </script>
 
