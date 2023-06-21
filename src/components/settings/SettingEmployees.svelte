@@ -1,74 +1,11 @@
 <script>
-    import { createEventDispatcher } from "svelte";
-    import { onDestroy, onMount } from "svelte";
     import { CurrentEmployee, Employees } from "../../store/resources";
-    // import { modalData, modalText, modalTitle, modalType } from "../../store/modal";
-    // import { ModalData } from "../../store/modal";
-    import { db } from "../../firebase";
 
     import Button from "../shared/Button.svelte";
     import EmployeeList from "./employee/EmployeeList.svelte";
-    import EmployeeUpdateInfo from './employee/EmployeeUpdateInfo.svelte';
+    import EmployeeUpdateInfo from './employee/EmployeeInfoForm.svelte';
     import EmployeeViewSchedule from './employee/EmployeeViewSchedule.svelte';
-    // import Modal from "../shared/Modal.svelte";
 
-    // let modal = null
-    // let employees = []
-    // let employeeId = ''
-
-    /* const unsubscribeEmp = Employees.subscribe(value => {
-        employees = value
-    })
-    onDestroy(() => {
-        unsubscribeEmp()
-    }) */
-
-    /* const getEmployee = (id) => {
-        let empFiltered = $Employees.filter(e => e.id == id);
-        let empToDelete = empFiltered.length > 0 ? empFiltered[0] : null
-        console.log(`SettingsEmployees empToDelete, id==>${id}`, empToDelete)
-
-        return empToDelete
-    } */
-
-    /* const deleteEmployee = async (id) => {
-        let empToDelete = getEmployee(id)
-        if (!empToDelete) {
-            // modalTitle.update(e=>'An error has occured')
-            // modalText.update(e=>'Error retrieving employee. Click "Close" to exit this window.')
-            // modalType.update(e=>'alert')
-
-            return
-        }
-        
-        console.log('empToDelete', empToDelete)
-        employeeId = empToDelete.id
-
-        // let response = await db.collection('employees').doc(id).delete()
-        // console.log(`deleteEmployee response ==>`, response)
-        modal.hide()
-    } */
-
-    /* const handleConfirm = () => {
-        switch ($modalData.action) {
-            case 'delete': {
-                deleteEmployee($modalData.id)
-                break
-            }
-            default: break
-        }
-    } */
-
-    /* const handleCancel = () => {
-        modalDialog.hide()
-    } */
-
-    /* const showModal = (data) => {
-        modalData.update(e=>data)
-        modalDialog.show()
-    } */
-
-    let title = ''
     let pages = [
         { name: 'list',         title: 'Employees',         component: EmployeeList },
         { name: 'info',         title: 'Employee Info',     component: EmployeeUpdateInfo },
@@ -122,12 +59,6 @@
 </div>
 
 <svelte:component this={selectedPage.component} on:action={(e) => handleAction(e.detail) } />
-<!-- <svelte:component this={selectedPage.component} /> -->
-
-<!-- <Modal bind:this={modal}
-    on:confirm={()=>handleConfirm()}
-    on:cancel={()=>handleCancel()}
-/> -->
 
 <style>
     .header {
@@ -146,7 +77,4 @@
         font-size: 1.5rem;
         text-transform: capitalize;
     }
-    /* .header-title ul {
-        list-style: none;
-    } */
 </style>
