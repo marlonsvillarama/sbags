@@ -5,25 +5,31 @@
     export let required = false
     export let value = ''
     export let error = 'This field is required.'
+    export let dirty = false
 
+    let dispatch = createEventDispatcher()
     let labelClass = `fld-label ${required ? 'required' : ''}`
-    let isDirty = false
+
+    export const checkDirty = () => {
+        dirty = (required && !value)
+    }
+
+    export const isDirty = () => dirty
 
     const handleChange = () => {
-        if (required && !value) {
-            isDirty = true
-        }
+        checkDirty()
+        dispatch('change', {
+            dirty: dirty
+        })
     }
 
-    export const setDirty = () => {
-        isDirty = true
-    }
+    checkDirty()
 </script>
 
 <div class="fld">
     <span class={labelClass}>{label}</span>
     <input required={required} bind:value={value} type="text" on:change={handleChange} />
-    {#if isDirty}
+    {#if dirty}
         <span class="fld-error">{error}</span>
     {/if}
 </div>

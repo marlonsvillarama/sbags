@@ -1,5 +1,5 @@
 <script>
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
     import { db } from "../../../firebase";
     import { doc, setDoc } from 'firebase/firestore'
     import { CurrentEmployee, Employees } from "../../../store/resources";
@@ -16,17 +16,12 @@
     const handleCancel = () => {
         dispatch('action', { action: 'cancel' })
     }
+
+    onMount(() => {})
 </script>
 
 <div class="form">
-    <span>Employee Schedule</span>
-
-    <!-- <EmployeeBlockList data={$CurrentEmployee.blocked} /> -->
-
-    <div class="actions">
-        <Button label="Save" type="cta" on:mouseup={handleUpdate} />
-        <Button label="Cancel" on:mouseup={handleCancel} />
-    </div>
+    <EmployeeBlockList />
 </div>
 
 <style>

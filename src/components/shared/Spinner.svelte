@@ -25,6 +25,7 @@
     export let label = ''
     export let color = '#FF3E00'
     export let duration = '1s'
+    export let id = ''
 
     let selectedIcon
 
@@ -35,7 +36,7 @@
     init()
 </script>
 
-<div class="spinner">
+<div class="spinner" id={id}>
     <svelte:component this={selectedIcon.component} size={size} color={color} unit="px" duration={duration} />
     {#if label}
         <span>{label}</span>

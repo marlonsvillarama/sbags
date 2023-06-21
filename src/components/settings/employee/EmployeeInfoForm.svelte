@@ -1,29 +1,27 @@
 <script>
     import { createEventDispatcher } from "svelte";
-    import { onDestroy } from "svelte";
+    import { onMount } from "svelte";
     import { db } from "../../../firebase";
-    import { doc, setDoc } from 'firebase/firestore'
-    import { CurrentEmployee, Employees } from "../../../store/resources";
+    import { CurrentEmployee } from "../../../store/resources";
     
     import Button from "../../shared/Button.svelte";
-    import Checkbox from "../../shared/form/Checkbox.svelte";
-    import FormField from "../../shared/form/FormField.svelte";
     import InputText from "../../shared/form/InputText.svelte";
     import InputCheckbox from "../../shared/form/InputCheckbox.svelte";
     import InputNumber from "../../shared/form/InputNumber.svelte";
     import Modal from "../../shared/Modal.svelte";
 
-    console.log(`EmployeeUpdateInfo CurrentEmployee`, $CurrentEmployee)
     let dispatch = createEventDispatcher()
-    let isDirty = false
-    let employeeName = $CurrentEmployee ? $CurrentEmployee.uid : ''
-    let employeeActive = $CurrentEmployee ? $CurrentEmployee.active : true
-    let employeeHours = $CurrentEmployee ? $CurrentEmployee.maxhours : true
+    let employeeName = $CurrentEmployee ? $CurrentEmployee['uid'] : ''
+    let employeeActive = $CurrentEmployee ? $CurrentEmployee['active'] : true
+    let employeeHours = $CurrentEmployee ? $CurrentEmployee['maxhours'] : 40
     let ctaLabel = `${$CurrentEmployee ? 'Update' : 'Create'} Employee`
+    let isDirty = false
     let dialog
     let dialogTitle = ''
     let dialogContent = ''
     let dialogType = ''
+    let inputName
+    let inputHours
 
     const updateEmployee = async () => {
         $CurrentEmployee = {
@@ -32,23 +30,8 @@
             active: employeeActive,
             maxhours: employeeHours
         }
-        console.log(`EmployeeUpdateInfo handleUpdate CurrentEmployee`, $CurrentEmployee)
+        db.collection('employees').doc($CurrentEmployee['id']).set({ ...$CurrentEmployee })
 
-        await setDoc(doc(db, 'employees', $CurrentEmployee.id), { ...$CurrentEmployee })
-
-        Employees.update(list => {
-            let current = list.filter(e => e.id == $CurrentEmployee.id)
-            if (current.length <= 0) {
-                list.push({ ...$CurrentEmployee })
-            }
-            current = {
-                ...current,
-                uid: employeeName,
-                active: employeeActive,
-                maxhours: employeeHours
-            }
-            return list
-        })
         dispatch('action', {
             action: 'update',
             dirty: false
@@ -56,12 +39,16 @@
     }
 
     const handleUpdate = async () => {
+        checkDirty()
         if (isDirty) {
             dialogTitle = 'One or more fields are required.'
             dialogContent = 'Please make sure all required fields are filled out corectly.'
             dialogType = 'alert'
             dialog.show()
+            return
         }
+
+        updateEmployee()
     }
 
     const backToList = () => {
@@ -78,18 +65,24 @@
             dialogType = 'confirm'
             dialog.show()
         }
+        backToList()
     }
 
-    const makeDirty = () => {
-        isDirty = true
-        console.log(`EmployeeUpdateInfo isDirty ==>`, isDirty)
+    const checkDirty = () => {
+        isDirty = (
+            inputName.isDirty() ||
+            inputHours.isDirty()
+        )
+        console.log('EmployeeUpdateInfo checkDirty isDirty ==>', isDirty)
     }
+
+    onMount(() => checkDirty())
 </script>
 
 <div id="" class="form">
-    <InputText label="Employee name" required bind:value={employeeName} on:change={makeDirty} />
-    <InputCheckbox label="Is Active" bind:checked={employeeActive} on:check={makeDirty} on:uncheck={makeDirty} />
-    <InputNumber label="Hours per week" required bind:value={employeeHours} on:change={makeDirty} />
+    <InputText bind:this={inputName} label="Employee name" required bind:value={employeeName} on:change={checkDirty} />
+    <InputCheckbox label="Is Active" bind:checked={employeeActive} on:change />
+    <InputNumber bind:this={inputHours} label="Hours per week" required bind:value={employeeHours} on:change={checkDirty} />
 
     <div class="actions">
         <Button label={ctaLabel} type="cta" on:mouseup={handleUpdate} />

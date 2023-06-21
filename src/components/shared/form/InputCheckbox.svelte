@@ -7,5 +7,5 @@
 
 <div class="fld">
     <span class="fld-label">{label}</span>
-    <Checkbox bind:checked={checked} on:check on:uncheck />
+    <Checkbox bind:checked={checked} on:change />
 </div>

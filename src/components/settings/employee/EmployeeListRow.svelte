@@ -4,22 +4,17 @@
     import { createEventDispatcher } from "svelte";
     import { db } from "../../../firebase";
     import { CurrentEmployee, Employees } from "../../../store/resources";
-    // import { modalText, modalTitle, modalType } from "../../../store/modal";
-    import { ModalData } from "../../../store/modal";
 
     import Button from "../../shared/Button.svelte";
     import Checkbox from "../../shared/form/Checkbox.svelte";
     import EmployeeDeleteButton from "./EmployeeDeleteButton.svelte";
-    // import Spinner from "../../shared/Spinner.svelte";
 
     let dispatch = createEventDispatcher()
     let employees = $Employees
-    console.log(`EmployeeListRow employees ==>`, employees)
 
     const getEmployee = (id) => {
         let empFiltered = employees.filter(e => e.id == id);
         let empToDelete = empFiltered.length > 0 ? empFiltered[0] : null
-        console.log(`SettingsEmployees empToDelete, id==>${id}`, empToDelete)
 
         return empToDelete
     }
@@ -27,48 +22,25 @@
     const toggleEmployee = async (id, toggle) => {
         let emp = getEmployee(id)
         if (!emp) {
-            // modalTitle.update(e=>'An error has occured')
-            // modalText.update(e=>'Error retrieving employee. Click "Close" to exit this window.')
-            // modalType.update(e=>'alert')
-
             return
         }
         
         await db.collection('employees').doc(emp.id).update({ active:toggle })
         emp.active = true
         Employees.update(value=>employees)
-    }
-
-    // let doDelete = false
-    /* const deleteEmployee = async (id) => {
-        let emp = getEmployee(id)
-        if (!emp) {
-            // modalTitle.update(e=>'An error has occured')
-            // modalText.update(e=>'Error retrieving employee. Click "Close" to exit this window.')
-            // modalType.update(e=>'alert')
-
-            return
-        }
-        
-        // doDelete = true
-        const res = await db.collection('employees').doc(emp.id).delete()
-        // emp.active = true
-        Employees.update(value=>employees.filter(e=>e.id != id))
-    } */
+      }
 
     const deleteEmployee = async (id) => {
-        // deleteEmployee(employee.id)
         let emp = getEmployee(id)
         if (!emp) {
-            // modalTitle.update(e=>'An error has occured')
-            // modalText.update(e=>'Error retrieving employee. Click "Close" to exit this window.')
-            // modalType.update(e=>'alert')
-
             return
         }
 
         await db.collection('employees').doc(emp.id).delete()
         Employees.update(value=>employees.filter(e=>e.id != emp.id))
+        dispatch('action', {
+            action: 'delete'
+        })
     }
 
     const showUpdateInfo = (id) => {
@@ -108,7 +80,6 @@
         display: flex;
         flex-direction: row;
         align-items: center;
-        /* justify-content: space-between; */
     }
     .row > span:first-child {
         flex: 0 0 20rem;

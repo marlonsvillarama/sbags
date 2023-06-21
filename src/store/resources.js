@@ -5,6 +5,7 @@ export const Resources = writable([])
 export const Employees = writable([])
 
 export const CurrentEmployee = writable({})
+export const CurrentBlock = writable({})
 
 /* export const DeleteEmployee = (uid) => {
     console.log(`DeleteEmployee ==>`, uid)

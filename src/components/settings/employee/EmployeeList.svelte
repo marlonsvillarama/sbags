@@ -1,23 +1,39 @@
 <script>
-    // import { createEventDispatcher } from "svelte";
-    // import { db } from "../../../firebase";
+    import { createEventDispatcher } from "svelte";
+    import { onMount } from "svelte";
+    import { collectionData } from 'rxfire/firestore'
+    import { db } from "../../../firebase";
+    import { startWith } from 'rxjs/operators'
     import { Employees } from "../../../store/resources";
 
     import EmployeeListRow from "./EmployeeListRow.svelte";
-    // import Modal from "../../shared/Modal.svelte";
 
-    // let dispatch = createEventDispatcher()
-    // let modalDialog
-    console.log(`EmployeeList Employees ==>`, $Employees)
+    let dispatch = createEventDispatcher()
+    let employees = []
 
-    // const handleConfirm = () => {}
+    const updateList = () => {
+        let dbquery = db.collection('employees')
+            .orderBy('uid')
+        collectionData(dbquery, { idField: 'id' }).pipe(startWith([]))
+            .subscribe(results => {
+                employees = results
+                employees = employees.sort((a, b) => (a.uid.toLowerCase() > b.uid.toLowerCase()) ? 1 : -1)
+                Employees.update(e => employees)
+            })
+    }
 
-    // const handleCancel = () => {}
+    const handleAction = (data) => {
+        console.log(`EmployeeList handleAction ==>`, data)
+        if (data.action == 'update' || data.action == 'delete') {
+            updateList()
+        }
 
-    /* const handleAction = (data) => {
-        console.log(`EmployeeList handleAction data==>`, data)
-        // dispatch('action', { ...data })
-    } */
+        dispatch('action', { ...data })
+    }
+    
+    onMount(() => {
+        updateList()
+    })
 </script>
 
 <div class="table">
@@ -28,17 +44,12 @@
         <span></span>
     </div>
     <div class="content">
-        {#each $Employees as employee}
-            <!-- <EmployeeListRow employee={employee} on:action={(e) => handleAction(e.detail)} /> -->
-            <EmployeeListRow employee={employee} on:action />
+        {#each employees as employee}
+            <EmployeeListRow employee={employee} on:action={(e)=>handleAction(e.detail)} />
+            <!-- <EmployeeListRow employee={employee} on:action /> -->
         {/each}
     </div>
 </div>
-
-<!-- <Modal bind:this={modalDialog}
-    on:confirm={()=>handleConfirm()}
-    on:cancel={()=>handleCancel()}
-/> -->
 
 <style>
     .table {
