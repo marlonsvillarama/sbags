@@ -3,27 +3,34 @@
     import { CurrentEmployee } from "../../../store/resources";
 
     import Button from "../../shared/Button.svelte";
+    import Dropdown from "../../shared/form/Dropdown.svelte";
     import EmployeeBlockListRow from "./EmployeeBlockListRow.svelte";
 
     let blocks = []
+    let dispatch = createEventDispatcher()
+    let dialog
 
-    const handleAction = (data) => {}
+    const handleAction = (data) => {
+        dispatch('action', { ...data })
+    }
 
     onMount(() => {
-        blocks = $CurrentEmployee['blocked']
-        blocks = blocks.sort((a, b) => a.frequency.toLowerCase() > b.frequency.toLowerCase() ? 1 : -1)
+        blocks = $CurrentEmployee['blocked'] || []
+        if (blocks) {
+            blocks = blocks.sort((a, b) => a.frequency.toLowerCase() > b.frequency.toLowerCase() ? 1 : -1)
+        }
     })
 </script>
 
 <div class="container">
     <div class="table">
         <div class="header">
-            <span class="tbl-title">Blocked times</span>
+            <span class="tbl-title">Blocked times - {$CurrentEmployee['uid']}</span>
             <Button type="cta" label="New blocked time" />
         </div>
         <div class="content">
             {#each blocks as block}
-                <EmployeeBlockListRow block={block} on:action={(e)=>handleAction(e.detail)} />
+                <EmployeeBlockListRow block={block} on:action />
             {/each}
         </div>
     </div>

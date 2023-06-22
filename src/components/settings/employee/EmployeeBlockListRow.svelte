@@ -3,25 +3,24 @@
     
     import { createEventDispatcher, onMount } from "svelte";
     import { db } from "../../../firebase";
-    import { CurrentEmployee } from "../../../store/resources";
+    import { CurrentBlock, CurrentEmployee } from "../../../store/resources";
 
     import Button from "../../shared/Button.svelte";
     import Checkbox from "../../shared/form/Checkbox.svelte";
     import EmployeeDeleteButton from "./EmployeeDeleteButton.svelte";
+    import Modal from "../../shared/Modal.svelte";
 
+    let dialog
     let dispatch = createEventDispatcher()
+    let doDelete = false
     let employee
     let scheduleText = ''
 
-    const capitalize = (value) => {
-        if (!value) {
-            return ''
+    const parseDateTime = (value) => {
+        if (!value || isNaN(value)) {
+            return null
         }
 
-        return `${value.slice(0, 1).toUpperCase()}${value.slice(1).toLowerCase}`
-    }
-
-    const parseDateTime = (value) => {
         let dt = value.toDate()
         let dateString = dt.toLocaleDateString('en-us', {
             weekday: "long",
@@ -110,6 +109,31 @@
         return output
     }
 
+    const handleEdit = () => {
+        CurrentBlock.update(e => block)
+        dispatch('action', {
+            action: 'navigate',
+            page: 'form'
+        })
+        dispatch('action', {
+            action: 'form'
+        })
+    }
+
+    const handleConfirm = () => {
+        dialog.hide()
+        doDelete = true
+        console.log(`EmployeeBlockListRow handleConfirm`)
+    }
+
+    const showModal = () => {
+        console.log('showModal block', block)
+        if (!block.id) {
+            return
+        }
+        dialog.show()
+    }
+
     onMount(() => {
         employee = $CurrentEmployee
         if (!employee) {
@@ -122,11 +146,16 @@
 
 <div class="row">
     <div class="actions">
-        <Button icon="edit" type="icon" on:mouseup={()=>{alert(block.id)}} />
-        <Button icon="trash" type="icon" />
+        <Button icon="edit" type="icon" on:mouseup={handleEdit} />
+        <Button icon="trash" type="icon" on:mouseup={showModal} />
     </div>
     <span>{scheduleText}</span>
 </div>
+
+<Modal bind:this={dialog} type='confirm' on:confirm={handleConfirm}>
+    <span slot="header">Delete blocked time</span>
+    <span slot="content">Are you sure you want to delete this blocked time? This operation cannot be undone.</span>
+</Modal>
 
 <style>
     .row {

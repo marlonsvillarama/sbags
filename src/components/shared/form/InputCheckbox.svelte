@@ -9,3 +9,10 @@
     <span class="fld-label">{label}</span>
     <Checkbox bind:checked={checked} on:change />
 </div>
+
+<style>
+    .fld {
+        width: 10rem;
+        /* border: 1px solid red; */
+    }
+</style>

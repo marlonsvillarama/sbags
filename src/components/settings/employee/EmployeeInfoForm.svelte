@@ -65,7 +65,9 @@
             dialogType = 'confirm'
             dialog.show()
         }
-        backToList()
+        else {
+            backToList()
+        }
     }
 
     const checkDirty = () => {
@@ -73,7 +75,7 @@
             inputName.isDirty() ||
             inputHours.isDirty()
         )
-        console.log('EmployeeUpdateInfo checkDirty isDirty ==>', isDirty)
+        console.log('EmployeeInfoForm checkDirty isDirty ==>', isDirty)
     }
 
     onMount(() => checkDirty())

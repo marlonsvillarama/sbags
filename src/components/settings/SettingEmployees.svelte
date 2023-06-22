@@ -3,14 +3,15 @@
 
     import Button from "../shared/Button.svelte";
     import EmployeeList from "./employee/EmployeeList.svelte";
-    import EmployeeUpdateInfo from './employee/EmployeeInfoForm.svelte';
+    import EmployeeInfoForm from './employee/EmployeeInfoForm.svelte';
     import EmployeeViewSchedule from './employee/EmployeeViewSchedule.svelte';
 
     let pages = [
         { name: 'list',         title: 'Employees',         component: EmployeeList },
-        { name: 'info',         title: 'Employee Info',     component: EmployeeUpdateInfo },
+        { name: 'info',         title: 'Employee Info',     component: EmployeeInfoForm },
         { name: 'schedule',     title: 'Employee Schedule', component: EmployeeViewSchedule }
     ]
+    let showBackToList = false
 
     const loadComponent = (page) => {
         let filtered = pages.filter(p => p.name == page)
@@ -23,10 +24,15 @@
 	}
 
     const handleAction = (data) => {
+        showBackToList = true
         switch(data.action) {
             case 'navigate': {
                 navigate(data.page)
                 break;
+            }
+            case 'form': {
+                showBackToList = false
+                break
             }
             case 'cancel':
             case 'update': {
@@ -53,7 +59,7 @@
     
     {#if selectedPage.name == 'list'}
         <Button label="Create new employee" icon="user-plus" type="cta" on:mouseup={navigateToCreate}></Button>
-    {:else}
+    {:else if selectedPage.name == 'schedule' || showBackToList}
         <Button label="Back to list" icon="arrow-left" on:mouseup={(e)=>handleAction({action:'navigate',page:'list'})}></Button>
     {/if}
 </div>

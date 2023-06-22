@@ -49,6 +49,9 @@
             action: 'navigate',
             page: 'info'
         })
+        dispatch('action', {
+            action: 'form'
+        })
     }
 
     const showSchedule = (id) => {

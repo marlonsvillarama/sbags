@@ -86,6 +86,8 @@ body {
     gap: 2rem;
 }
 
+input[type=date],
+input[type=time],
 input[type=text],
 input[type=number] {
     border: 1px solid var(--color-hairline);
@@ -95,10 +97,15 @@ input[type=number] {
     font-size: 1.125rem;
     color: var(--font-color-gray-med);
 }
-input[type=text] {
+input[type=text],
+select {
     width: 30rem;
 }
 input[type=number] {
     width: 6rem;
     text-align: right;
 }
+/* input[type=date],
+input[type=time] {
+    width: 12rem;
+} */
