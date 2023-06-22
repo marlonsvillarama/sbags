@@ -153,11 +153,32 @@
         let updateBlock = {
             frequency: selectedFrequency,
             allday: allDay,
-            start_date: (selectedFrequency == 'one time' ? null : toTimestamp(startDate)),
-            end_date: (selectedFrequency == 'one time' ? null : toTimestamp(endDate)),
-            start_time: (selectedFrequency == 'one time' ? toTimestamp(startDate, true) : (allDay ? null : toTimestamp(startTime, true))),
-            end_time: (selectedFrequency == 'one time' ? (allDay ? null : toTimestamp(endTime, true)) : toTimestamp(endTime, true)),
+            // start_date: (selectedFrequency == 'one time' ? null : toTimestamp(startDate)),
+            // end_date: (selectedFrequency == 'one time' ? null : toTimestamp(endDate)),
+            // start_time: (selectedFrequency == 'one time' ? toTimestamp(startDate, true) : (allDay ? null : toTimestamp(startTime, true))),
+            // end_time: (selectedFrequency == 'one time' ? (allDay ? null : toTimestamp(endTime, true)) : toTimestamp(endTime, true)),
             days: days.length > 0 ? days.join(',') : null
+        }
+
+        if ($CurrentBlock) {
+            updateBlock.id = $CurrentBlock['id']
+        }
+
+        if (selectedFrequency == 'one time') {
+            updateBlock.start_time = toTimestamp(startDate, true)
+
+            if (!allDay) {
+                updateBlock.end_time = toTimestamp(endTime, true)
+            }
+        }
+        else {
+            updateBlock.start_date = toTimestamp(startDate)
+            updateBlock.end_date = toTimestamp(endDate)
+
+            if (!allDay) {
+                updateBlock.end_time = toTimestamp(endTime, true)
+                updateBlock.start_time = toTimestamp(startTime, true)
+            }
         }
 
         CurrentEmployee.update(emp => {
@@ -169,7 +190,7 @@
                     let obj = null
                     if (block.id == $CurrentBlock['id']) {
                         obj = {
-                            ...$CurrentBlock,
+                            // ...$CurrentBlock,
                             ...updateBlock
                         }
                     }
@@ -193,6 +214,10 @@
 
     const handleUpdate = () => {
         updateBlock()
+        dispatch('action', {
+            action: 'navigate',
+            page: 'list'
+        })
     }
 
     const handleDelete = () => {

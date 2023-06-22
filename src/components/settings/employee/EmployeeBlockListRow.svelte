@@ -36,7 +36,7 @@
             date: dateParts[1],
             year: dateParts[2],
             time: `${hour > 12 ? hour - 12 : hour}:${dt.getMinutes().toString().padStart(2, '0')}`,
-            ampm: hour > 12 ? 'PM' : 'AM'
+            ampm: hour >= 12 ? 'PM' : 'AM'
         }
     }
 
@@ -88,14 +88,27 @@
             case 'weekly': {
                 let start = parseDateTime(start_date)
                 let end = parseDateTime(end_date)
-                let time1 = parseDateTime(start_time)
-                let time2 = parseDateTime(end_time)
-                let times = `${time1.time} ${time1.ampm} to ${time2.time} ${time2.ampm}`
+                let time1
+                let time2
+
                 output = `${output} from `
-                output = `${output} ${start.date} to ${end.date}, ${times}`
+                output = `${output} ${start.date} to ${end.date}`
+                
                 if (days) {
                     output = `${output}, every ${parseDays(days)}`
                 }
+
+                if (allday) {
+                    output = `${output}, all day`
+                }
+                else {
+                    time1 = parseDateTime(start_time)
+                    time2 = parseDateTime(end_time)
+
+                    let times = `${time1.time} ${time1.ampm} to ${time2.time} ${time2.ampm}`
+                    output = `${output}, ${times}`
+                }
+                
                 break
             }
             case 'fortnightly': {
