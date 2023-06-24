@@ -11,9 +11,10 @@
     import InputDate from "../../shared/form/InputDate.svelte";
     import Modal from "../../shared/Modal.svelte";
 
-    let ctaLabel = `${$CurrentBlock ? 'Update' : 'Create'}`
+    let ctaLabel = `${$CurrentBlock['id'] ? 'Update' : 'Create'}`
     let isDirty = false
     let dialog
+    let dialogAction = ''
     let dialogTitle = ''
     let dialogContent = ''
     let dialogType = ''
@@ -22,7 +23,6 @@
         { text: 'One time', value: 'one time' },
         { text: 'Occurs daily', value: 'daily' },
         { text: 'Occurs every week', value: 'weekly' },
-        { text: 'Occurs every fornight', value: 'fornightly' }
     ]
     let selectedDays = {
         monday: false,
@@ -33,8 +33,7 @@
         saturday: false,
         sunday: false
     }
-    let selectAllDays = false
-    let selectedFrequency = $CurrentBlock['frequency']
+    let selectedFrequency = $CurrentBlock['frequency'] || ''
     let startDate
     let endDate
     let startTime
@@ -49,7 +48,6 @@
         let month = (dt.getMonth()+1).toString().padStart(2, '0')
         let date = dt.getDate().toString().padStart(2, '0')
         let output = `${dt.getFullYear()}-${month}-${date}`
-        console.log(`parseDate output = ${output} <==`, dt)
         return output
     }
 
@@ -71,9 +69,6 @@
             output = Timestamp.fromDate(new Date(value))
         }
 
-        console.log(`toTimestamp value==>`, value)
-        console.log(`toTimestamp output==>`, output)
-
         return output
     }
 
@@ -85,7 +80,6 @@
         let hour = dt.getHours().toString().padStart(2, '0')
         let minute = dt.getMinutes().toString().padStart(2, '0')
         let output = `${hour}:${minute}`
-        console.log(`parseTime output = ${output} <==`, dt)
         return output
     }
 
@@ -134,15 +128,9 @@
 
     const checkDirty = () => {
         isDirty = false
-        /* (
-            // inputName.isDirty() ||
-            // inputHours.isDirty()
-        ) */
-        console.log('EmployeeBlockForm checkDirty isDirty ==>', isDirty)
     }
 
-    const updateBlock = () => {
-        console.log(`updateBlock selectedDays`, selectedDays)
+    const getSelectedDays = () => {
         let days = []
         for(const [key, value] of Object.entries(selectedDays)) {
             if (value) {
@@ -150,25 +138,71 @@
             }
         }
 
+        return days
+    }
+
+    const generateId = (length) => {
+        let len = length || 20
+        let result = ''
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const charactersLength = characters.length;
+        let counter = 0;
+
+        while (counter < len) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            counter += 1;
+        }
+
+        return result
+    }
+
+    const updateBlock = async () => {
+        let days = getSelectedDays()
+        /* let days = []
+        for(const [key, value] of Object.entries(selectedDays)) {
+            if (value) {
+                days.push(key)
+            }
+        } */
+
         let updateBlock = {
             frequency: selectedFrequency,
             allday: allDay,
-            // start_date: (selectedFrequency == 'one time' ? null : toTimestamp(startDate)),
-            // end_date: (selectedFrequency == 'one time' ? null : toTimestamp(endDate)),
-            // start_time: (selectedFrequency == 'one time' ? toTimestamp(startDate, true) : (allDay ? null : toTimestamp(startTime, true))),
-            // end_time: (selectedFrequency == 'one time' ? (allDay ? null : toTimestamp(endTime, true)) : toTimestamp(endTime, true)),
-            days: days.length > 0 ? days.join(',') : null
         }
 
-        if ($CurrentBlock) {
+        if (days.length > 0) {
+            updateBlock.days = days.join(',')
+        }
+
+        if ($CurrentBlock['id']) {
             updateBlock.id = $CurrentBlock['id']
         }
 
         if (selectedFrequency == 'one time') {
-            updateBlock.start_time = toTimestamp(startDate, true)
+            if (allDay) {
+                updateBlock.start_time = toTimestamp(startDate)
+            }
+            else {
+                let dtStartDate = new Date(startDate)
+                let dtStartTime = toTimestamp(startTime, true).toDate()
+                let dtEndTime = toTimestamp(endTime, true).toDate()
+                let dtStart = new Date(
+                    dtStartDate.getFullYear(),
+                    dtStartDate.getMonth(),
+                    dtStartDate.getDate(),
+                    dtStartTime.getHours(),
+                    dtStartTime.getMinutes()
+                )
+                let dtEnd = new Date(
+                    dtStartDate.getFullYear(),
+                    dtStartDate.getMonth(),
+                    dtStartDate.getDate(),
+                    dtEndTime.getHours(),
+                    dtEndTime.getMinutes()
+                )
 
-            if (!allDay) {
-                updateBlock.end_time = toTimestamp(endTime, true)
+                updateBlock.start_time = toTimestamp(dtStart.toString())
+                updateBlock.end_time = toTimestamp(dtEnd.toString())
             }
         }
         else {
@@ -182,37 +216,196 @@
         }
 
         CurrentEmployee.update(emp => {
+            emp['blocked'] = emp['blocked'] || []
             let found = emp['blocked'].filter(b => b.id == $CurrentBlock['id'])
-            console.log(`blocked map found==>`, found)
             if (found.length > 0) {
                 emp['blocked'] = emp['blocked'].map(block => {
-                    console.log(`blocked found map block==>`, block)
                     let obj = null
                     if (block.id == $CurrentBlock['id']) {
                         obj = {
-                            // ...$CurrentBlock,
                             ...updateBlock
                         }
                     }
                     else {
                         obj = { ...block }
                     }
-                    console.log(`blocked map obj==>`, obj)
                     return obj
                 })
             }
             else {
-                console.log(`blocked not found $CurrentBlock==>`, $CurrentBlock)
-                emp['blocked'].push({...$CurrentBlock})
+                updateBlock['id'] = generateId()
+                emp['blocked'].push({...updateBlock})
             }
 
             return emp
         })
-        console.log(`updateBlock CurrentEmployee ==>`, $CurrentEmployee)
-        db.collection('employees').doc($CurrentEmployee['id']).set({ ...$CurrentEmployee })
+        await db.collection('employees').doc($CurrentEmployee['id']).set({ ...$CurrentEmployee })
+    }
+
+    const deleteBlock = async () => {
+        CurrentEmployee.update(emp => {
+            emp['blocked'] = emp['blocked'].filter(b => b.id != $CurrentBlock['id'])
+            return emp
+        })
+        await db.collection('employees').doc($CurrentEmployee['id']).set({ ...$CurrentEmployee })
+        dispatch('action', {
+            action: 'delete'
+        })
+    }
+
+    const isBlank = (value) => {
+        return value == '' || value == null || value == undefined ||
+            (
+                value != '' && value.trim() == ''
+            )
+    }
+
+    const validateOneTime = () => {
+        console.log(`validateOneTime allDay`, allDay)
+        console.log(`validateOneTime startDate`, startDate)
+        console.log(`validateOneTime startTime`, startTime)
+        console.log(`validateOneTime endTime`, endTime)
+
+        if (allDay && isBlank(startDate)) {
+            return {
+                result: false,
+                message: 'Please enter a Start Date value.'
+            }
+        }
+
+        if (!allDay) {
+            if (isBlank(startDate) || isBlank(startTime) || isBlank(endTime)) {
+                return {
+                    result: false,
+                    message: 'Please make sure all of the date and time fields are populated.'
+                }
+            }
+
+            if (toTimestamp(startTime, true) >= toTimestamp(endTime, true)) {
+                return {
+                    result: false,
+                    message: 'The Start Time must be earlier than the End Time.'
+                }
+            }
+        }
+
+        if (new Date(startDate) < new Date(parseDate(new Date()))) {
+            return {
+                result: false,
+                message: 'The Start Date must be on or before today.'
+            }
+        }
+
+        return { result: true }
+    }
+
+    const validateDaily = () => {
+        if (allDay) {
+            if (isBlank(startDate) || isBlank(endDate)) {
+                return {
+                    result: false,
+                    message: 'Please specify all date values.'
+                }
+            }
+        }
+
+        if (!allDay) {
+            if (isBlank(startDate) || isBlank(startTime) || isBlank(endDate) || isBlank(endTime)) {
+                return {
+                    result: false,
+                    message: 'Please specify all date and time values.'
+                }
+            }
+
+            if (toTimestamp(startTime, true) > toTimestamp(endTime, true)) {
+                return {
+                    result: false,
+                    message: 'The Start Time must be the same or earlier than the End Time.'
+                }
+            }
+        }
+
+        if (toTimestamp(startDate) > toTimestamp(endDate)) {
+                return {
+                    result: false,
+                    message: 'The Start Date must be the same or earlier than the End Date.'
+                }
+            }
+
+        if (new Date(endDate) < new Date(parseDate(new Date()))) {
+            return {
+                result: false,
+                message: 'The End Date must be on or after today.'
+            }
+        }
+
+        return { result: true }
+    }
+
+    const validateWeekly = () => {
+        let output = validateDaily()
+        console.log(`validateWeekly daily output==>`, output)
+        if (!output.result) {
+            return output
+        }
+
+        if (getSelectedDays().length <= 0) {
+            return {
+                result: false,
+                message: 'Please select at least one day of the week.'
+            }
+        }
+
+        return { result: true }
+    }
+
+    const validateForm = () => {
+        let output = {}
+
+        if (!selectedFrequency) {
+            return {
+                result: false,
+                message: 'You must select the frequency for this block.'
+            }
+        }
+
+        console.log(`validateForm selectedFrequency`, selectedFrequency)
+        switch(selectedFrequency) {
+            case 'one time': {
+                output = validateOneTime()
+                break
+            }
+            case 'daily': {
+                output = validateDaily()
+                break
+            }
+            case 'weekly': {
+                output = validateWeekly()
+                break
+            }
+            default: break
+        }
+
+        console.log(`validateForm output==>`, output)
+        return output
     }
 
     const handleUpdate = () => {
+        let validate = validateForm()
+        if (!validate.result) {
+            dialogAction = 'delete'
+            dialogTitle = 'There was an error saving the time block.'
+            dialogContent = validate.message
+            dialogType = 'alert'
+            dialog.show()
+
+            return
+        }
+        
+        // 
+        // return
+        // 
+
         updateBlock()
         dispatch('action', {
             action: 'navigate',
@@ -221,6 +414,7 @@
     }
 
     const handleDelete = () => {
+        dialogAction = 'delete'
         dialogTitle = 'Delete this block?'
         dialogContent = 'Are you sure you want to continue?'
         dialogType = 'confirm'
@@ -229,6 +423,7 @@
 
     const handleCancel = () => {
         if (isDirty) {
+            dialogAction = 'cancel'
             dialogTitle = 'Your changes will be lost!'
             dialogContent = 'Are you sure you want to exit this page?'
             dialogType = 'confirm'
@@ -239,43 +434,13 @@
         }
     }
 
-    /* const toggleAllDays = () => {
-        monday = selectAllDays
-        toggleDay('monday', selectAllDays)
-        
-        tuesday = selectAllDays
-        toggleDay('tuesday', selectAllDays)
-
-        wednesday = selectAllDays
-        toggleDay('wednesday', selectAllDays)
-
-        thursday = selectAllDays
-        toggleDay('thursday', selectAllDays)
-
-        friday = selectAllDays
-        toggleDay('friday', selectAllDays)
-
-        saturday = selectAllDays
-        toggleDay('saturday', selectAllDays)
-
-        sunday = selectAllDays
-        toggleDay('subday', selectAllDays)
-    } */
-
-    // const toggleDay = (day, toggle) => {
-    /* const toggleDay = (day) => {
-        /* if (toggle) {
-            if (selectedDays.indexOf(day) < 0) {
-                selectedDays.push(day)
-            }
-        }
-        else {
-            if (selectedDays.indexOf(day) >= 0) {
-                selectedDays.splice(selectedDays.indexOf(day), 1)
-            }
-        } *
-        console.log(`toggle selectedDays`, selectedDays)
-    } */
+    const handleModal = () => {
+        deleteBlock()
+        dispatch('action', {
+            action: 'navigate',
+            page: 'list'
+        })
+    }
 
     onMount(() => {
         checkDirty()
@@ -325,14 +490,14 @@
 
     <div class="actions">
         <Button label={ctaLabel} type="cta" on:mouseup={handleUpdate} />
-        {#if $CurrentBlock}
+        {#if $CurrentBlock['id']}
             <Button label="Delete" on:mouseup={handleDelete} />
         {/if}
         <Button label="Cancel" on:mouseup={handleCancel} />
     </div>
 </div>
 
-<Modal bind:this={dialog} type={dialogType} on:confirm={backToList}>
+<Modal bind:this={dialog} type={dialogType} on:confirm={()=>handleModal()}>
     <span slot="header">{dialogTitle}</span>
     <span slot="content">{dialogContent}</span>
 </Modal>

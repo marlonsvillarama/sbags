@@ -40,6 +40,7 @@
 	}
 
     const handleAction = (data) => {
+        console.log(`EmployeeSchedule handleAction==>`, data)
         switch(data.action) {
             case 'navigate': {
                 navigate(data.page)

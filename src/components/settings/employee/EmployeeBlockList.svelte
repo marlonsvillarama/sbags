@@ -1,24 +1,54 @@
 <script>
     import { createEventDispatcher, onMount } from "svelte";
-    import { CurrentEmployee } from "../../../store/resources";
+    import { CurrentBlock, CurrentEmployee } from "../../../store/resources";
+    import { db } from "../../../firebase";
 
     import Button from "../../shared/Button.svelte";
-    import Dropdown from "../../shared/form/Dropdown.svelte";
     import EmployeeBlockListRow from "./EmployeeBlockListRow.svelte";
 
     let blocks = []
     let dispatch = createEventDispatcher()
-    let dialog
 
-    const handleAction = (data) => {
-        dispatch('action', { ...data })
+    const updateList = async () => {
+        blocks = []
+        let doc = await db.collection('employees').doc($CurrentEmployee['id']).get()
+        if (doc.exists) {
+            let data = doc.data()
+            CurrentEmployee.update(e => data)
+            blocks = data['blocked']
+        }
     }
 
-    onMount(() => {
+    const handleNew = () => {
+        CurrentBlock.update(e => {
+            return {}
+        })
+        console.log(`EmployeeBlockList handleNew CurrentBlock`, $CurrentBlock)
+        dispatch('action', {
+            action: 'navigate',
+            page: 'form'
+        })
+    }
+
+    const handleAction = (data) => {
+        console.log(`EmployeeBlockList handleAction`, data)
+        if (data.action == 'delete') {
+            updateList()
+        }
+        else {
+            dispatch('action', { ...data })
+        }
+    }
+
+    const init = () => {
         blocks = $CurrentEmployee['blocked'] || []
         if (blocks) {
             blocks = blocks.sort((a, b) => a.frequency.toLowerCase() > b.frequency.toLowerCase() ? 1 : -1)
         }
+    }
+
+    onMount(() => {
+        init()
     })
 </script>
 
@@ -26,11 +56,11 @@
     <div class="table">
         <div class="header">
             <span class="tbl-title">Blocked times - {$CurrentEmployee['uid']}</span>
-            <Button type="cta" label="New blocked time" />
+            <Button type="cta" label="New blocked time" on:mouseup={handleNew} />
         </div>
         <div class="content">
             {#each blocks as block}
-                <EmployeeBlockListRow block={block} on:action />
+                <EmployeeBlockListRow block={block} on:action={(e)=>handleAction(e.detail)} />
             {/each}
         </div>
     </div>
@@ -50,7 +80,6 @@
         padding-bottom: 0.5rem;
         margin-bottom: 0.5rem;
         border-bottom: 3px solid var(--color-hairline);
-        /* background-color: #CFCFCF; */
     }
     .tbl-title {
         color: var(--font-color-gray-med);
@@ -59,17 +88,5 @@
     }
     .table {
         width: 100%;
-        /* border: 1px solid red; */
-    }
-    .tbl-header {
-        padding: 0.5rem 0 0.5rem;
-        color: var(--font-color-gray-med);
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-    }
-    .tbl-header {
-        font-weight: 700;
-        border-bottom: 3px solid var(--color-hairline);
     }
 </style>

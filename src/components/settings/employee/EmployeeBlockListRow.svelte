@@ -6,13 +6,10 @@
     import { CurrentBlock, CurrentEmployee } from "../../../store/resources";
 
     import Button from "../../shared/Button.svelte";
-    import Checkbox from "../../shared/form/Checkbox.svelte";
-    import EmployeeDeleteButton from "./EmployeeDeleteButton.svelte";
     import Modal from "../../shared/Modal.svelte";
 
     let dialog
     let dispatch = createEventDispatcher()
-    let doDelete = false
     let employee
     let scheduleText = ''
 
@@ -78,11 +75,21 @@
             case 'daily': {
                 let start = parseDateTime(start_date)
                 let end = parseDateTime(end_date)
-                let time1 = parseDateTime(start_time)
-                let time2 = parseDateTime(end_time)
+                let time1
+                let time2
                 let dates = start.date == end.date ? `on ${start.date}` : `from ${start.date} to ${end.date}`
-                let times = `${time1.time} ${time1.ampm} to ${time2.time} ${time2.ampm}`
-                output = `${output} ${dates}, ${times}`
+
+                output = `${output} ${dates}`
+                if (allday) {
+                    output = `${output}, all day`
+                }
+                else {
+                    time1 = parseDateTime(start_time)
+                    time2 = parseDateTime(end_time)
+
+                    let times = `${time1.time} ${time1.ampm} to ${time2.time} ${time2.ampm}`
+                    output = `${output}, ${times}`
+                }
                 break
             }
             case 'weekly': {
@@ -111,12 +118,6 @@
                 
                 break
             }
-            case 'fortnightly': {
-                break
-            }
-            case 'monthly': {
-                break
-            }
         }
 
         return output
@@ -124,23 +125,30 @@
 
     const handleEdit = () => {
         CurrentBlock.update(e => block)
+        console.log(`EmployeeBlockListRow handleEdit CurrentBlock`, $CurrentBlock)
         dispatch('action', {
             action: 'navigate',
             page: 'form'
         })
+    }
+
+    const deleteBlock = async () => {
+        CurrentEmployee.update(emp => {
+            emp['blocked'] = emp['blocked'].filter(b => b.id != block.id)
+            return emp
+        })
+        await db.collection('employees').doc($CurrentEmployee['id']).set({ ...$CurrentEmployee })
         dispatch('action', {
-            action: 'form'
+            action: 'delete'
         })
     }
 
     const handleConfirm = () => {
         dialog.hide()
-        doDelete = true
-        console.log(`EmployeeBlockListRow handleConfirm`)
+        deleteBlock()
     }
 
     const showModal = () => {
-        console.log('showModal block', block)
         if (!block.id) {
             return
         }

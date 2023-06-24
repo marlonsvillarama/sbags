@@ -8,7 +8,7 @@
 
     let pages = [
         { name: 'list',         title: 'Employees',         component: EmployeeList },
-        { name: 'info',         title: 'Employee Info',     component: EmployeeInfoForm },
+        { name: 'form',         title: 'Employee Info',     component: EmployeeInfoForm },
         { name: 'schedule',     title: 'Employee Schedule', component: EmployeeViewSchedule }
     ]
     let showBackToList = false
