@@ -61,13 +61,13 @@
         }
     }
 
-    const navigateToCreate = () => {
+    /* const navigateToCreate = () => {
         $CurrentEmployee = null
         handleAction({
             action: 'navigate',
             page: 'info'
         })
-    }
+    } */
 </script>
 
 <div class="form">
@@ -76,16 +76,16 @@
 
 <style>
     .form {
-        padding: 1rem 0;
+        /* padding: 1rem 0; */
         display: flex;
         flex-direction: column;
         gap: 2rem;
     }
-    .actions {
+    /* .actions {
         display: flex;
         flex-direction: row;
         gap: 2rem;
         align-items: center;
         padding-top: 4rem;
-    }
+    } */
 </style>

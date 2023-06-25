@@ -25,15 +25,19 @@
 
     const handleAction = (data) => {
         showBackToList = true
+        console.log(`SettingEmployees data==>`, data)
         switch(data.action) {
             case 'navigate': {
                 navigate(data.page)
+                if (data.page == 'form') {
+                    showBackToList = false
+                }
                 break;
             }
-            case 'form': {
+            /* case 'form': {
                 showBackToList = false
                 break
-            }
+            } */
             case 'cancel':
             case 'update': {
                 navigate('list')
@@ -47,7 +51,7 @@
         $CurrentEmployee = null
         handleAction({
             action: 'navigate',
-            page: 'info'
+            page: 'form'
         })
     }
 </script>

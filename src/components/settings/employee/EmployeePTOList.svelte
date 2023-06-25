@@ -1,29 +1,40 @@
 <script>
     import { createEventDispatcher, onMount } from "svelte";
-    import { CurrentBlock, CurrentEmployee } from "../../../store/resources";
+    import { CurrentPTO, CurrentEmployee } from "../../../store/resources";
     import { db } from "../../../firebase";
+    import { collectionData } from "rxfire/firestore";
+    import { startWith } from "rxjs";
+    import { TimeOffs } from "../../../store/calendar";
 
     import Button from "../../shared/Button.svelte";
-    import EmployeeBlockListRow from "./EmployeeBlockListRow.svelte";
+    import EmployeePTOListRow from "./EmployeeBlockListRow.svelte";
 
-    let blocks = []
+    let timeOffs = []
     let dispatch = createEventDispatcher()
 
     const updateList = async () => {
-        blocks = []
-        let doc = await db.collection('employees').doc($CurrentEmployee['id']).get()
+        timeOffs = []
+        let dbquery = db.collection('timeoffs')
+            .orderBy('uid')
+        collectionData(dbquery, { idField: 'id' }).pipe(startWith([]))
+            .subscribe(results => {
+                timeOffs = results
+                timeOffs = timeOffs.sort((a, b) => (a.start_time > b.start_time) ? 1 : -1)
+                TimeOffs.update(e => timeOffs)
+            })
+        let doc = await db.collection('timeoffs').doc($CurrentEmployee['id']).get()
         if (doc.exists) {
             let data = doc.data()
             CurrentEmployee.update(e => data)
-            blocks = data['blocked']
+            timeOffs = data['blocked']
         }
     }
 
     const handleNew = () => {
-        CurrentBlock.update(e => {
+        CurrentPTO.update(e => {
             return {}
         })
-        console.log(`EmployeeBlockList handleNew CurrentBlock`, $CurrentBlock)
+        console.log(`EmployeePTOList handleNew CurrentPTO`, $CurrentPTO)
         dispatch('action', {
             action: 'navigate',
             page: 'form'
@@ -59,8 +70,8 @@
             <Button type="cta" label="New blocked time" on:mouseup={handleNew} />
         </div>
         <div class="content">
-            {#each blocks as block}
-                <EmployeeBlockListRow block={block} on:action={(e)=>handleAction(e.detail)} />
+            {#each timeOffs as pto}
+                <EmployeePTOListRow pto={pto} on:action={(e)=>handleAction(e.detail)} />
             {/each}
         </div>
     </div>

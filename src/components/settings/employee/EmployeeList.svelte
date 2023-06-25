@@ -46,7 +46,6 @@
     <div class="content">
         {#each employees as employee}
             <EmployeeListRow employee={employee} on:action={(e)=>handleAction(e.detail)} />
-            <!-- <EmployeeListRow employee={employee} on:action /> -->
         {/each}
     </div>
 </div>
@@ -54,6 +53,9 @@
 <style>
     .table {
         width: 100%;
+        /* box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+        border-radius: 0.5rem; */
+        /* padding: 1rem 1.25rem; */
     }
     .tbl-header {
         padding: 0.5rem 0 0.5rem;

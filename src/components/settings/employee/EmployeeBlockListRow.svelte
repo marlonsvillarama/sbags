@@ -1,5 +1,5 @@
 <script>
-    export let block
+    export let pto
     
     import { createEventDispatcher, onMount } from "svelte";
     import { db } from "../../../firebase";
