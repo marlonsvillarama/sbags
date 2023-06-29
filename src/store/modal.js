@@ -6,6 +6,7 @@ export const modalType = writable('')
 export const modalText = writable('') */
 
 export const ModalData = writable({
+    action: '',
     data: {},
     text: '',
     title: '',

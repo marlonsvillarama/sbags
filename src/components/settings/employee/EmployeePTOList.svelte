@@ -1,13 +1,12 @@
 <script>
     import { createEventDispatcher, onMount } from "svelte";
-    import { CurrentPTO, CurrentEmployee } from "../../../store/resources";
+    import { CurrentEmployee, CurrentPTO, TimeOffs } from "../../../store/resources";
     import { db } from "../../../firebase";
     import { collectionData } from "rxfire/firestore";
     import { startWith } from "rxjs";
-    import { TimeOffs } from "../../../store/calendar";
 
     import Button from "../../shared/Button.svelte";
-    import EmployeePTOListRow from "./EmployeeBlockListRow.svelte";
+    import EmployeePTOListRow from "./EmployeePTOListRow.svelte";
 
     let timeOffs = []
     let dispatch = createEventDispatcher()
@@ -15,19 +14,16 @@
     const updateList = async () => {
         timeOffs = []
         let dbquery = db.collection('timeoffs')
-            .orderBy('uid')
+            .where('employee', '==', $CurrentEmployee['id'])
+            // .where('date', '>=', new Date())
+            .orderBy('date')
         collectionData(dbquery, { idField: 'id' }).pipe(startWith([]))
             .subscribe(results => {
+                console.log(`EmployeePtoList updateList timeOffs==>`, timeOffs)
                 timeOffs = results
                 timeOffs = timeOffs.sort((a, b) => (a.start_time > b.start_time) ? 1 : -1)
                 TimeOffs.update(e => timeOffs)
             })
-        let doc = await db.collection('timeoffs').doc($CurrentEmployee['id']).get()
-        if (doc.exists) {
-            let data = doc.data()
-            CurrentEmployee.update(e => data)
-            timeOffs = data['blocked']
-        }
     }
 
     const handleNew = () => {
@@ -37,12 +33,12 @@
         console.log(`EmployeePTOList handleNew CurrentPTO`, $CurrentPTO)
         dispatch('action', {
             action: 'navigate',
-            page: 'form'
+            page: 'ptoform'
         })
     }
 
     const handleAction = (data) => {
-        console.log(`EmployeeBlockList handleAction`, data)
+        console.log(`EmployeePTOList handleAction`, data)
         if (data.action == 'delete') {
             updateList()
         }
@@ -52,22 +48,23 @@
     }
 
     const init = () => {
-        blocks = $CurrentEmployee['blocked'] || []
-        if (blocks) {
-            blocks = blocks.sort((a, b) => a.frequency.toLowerCase() > b.frequency.toLowerCase() ? 1 : -1)
+        timeOffs = $TimeOffs
+        if (timeOffs) {
+            timeOffs = timeOffs.sort((a, b) => a.date > b.date ? 1 : -1)
         }
     }
 
     onMount(() => {
-        init()
+        // init()
+        updateList()
     })
 </script>
 
 <div class="container">
     <div class="table">
         <div class="header">
-            <span class="tbl-title">Blocked times - {$CurrentEmployee['uid']}</span>
-            <Button type="cta" label="New blocked time" on:mouseup={handleNew} />
+            <span class="tbl-title">Time Offs - {$CurrentEmployee['uid']}</span>
+            <Button type="cta" label="New time off" on:mouseup={handleNew} />
         </div>
         <div class="content">
             {#each timeOffs as pto}

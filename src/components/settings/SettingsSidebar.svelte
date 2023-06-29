@@ -18,7 +18,7 @@
     <ButtonList>
         <Button icon="users" label="Employees" type='icon' on:mouseup={()=>showPage('employees')} />
         <Button icon="clock" label="Hours" type='icon' on:mouseup={()=>showPage('hours')} />
-        <Button icon="coffee" label="Time Offs" type='icon' on:mouseup={()=>showPage('time offs')} />
+        <!-- <Button icon="coffee" label="Time Offs" type='icon' on:mouseup={()=>showPage('time offs')} /> -->
     </ButtonList>
 </div>
 <style>

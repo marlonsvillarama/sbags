@@ -2,19 +2,21 @@
     import { createEventDispatcher } from "svelte";
     import { onMount } from "svelte";
     import { db } from "../../../firebase";
-    import { CurrentEmployee } from "../../../store/resources";
+    import { Timestamp } from "firebase/firestore";
+    import { CurrentEmployee, CurrentPTO } from "../../../store/resources";
     
     import Button from "../../shared/Button.svelte";
+    import InputDate from "../../shared/form/InputDate.svelte";
     import InputText from "../../shared/form/InputText.svelte";
     import InputCheckbox from "../../shared/form/InputCheckbox.svelte";
     import InputNumber from "../../shared/form/InputNumber.svelte";
     import Modal from "../../shared/Modal.svelte";
 
     let dispatch = createEventDispatcher()
-    let employeeName = $CurrentEmployee ? $CurrentEmployee['uid'] : ''
-    let employeeActive = $CurrentEmployee ? $CurrentEmployee['active'] : true
-    let employeeHours = $CurrentEmployee ? $CurrentEmployee['maxhours'] : 40
-    let ctaLabel = `${$CurrentEmployee ? 'Update' : 'Create'} Employee`
+    // let employeeName = $CurrentEmployee ? $CurrentEmployee['uid'] : ''
+    // let employeeActive = $CurrentEmployee ? $CurrentEmployee['active'] : true
+    // let employeeHours = $CurrentEmployee ? $CurrentEmployee['maxhours'] : 40
+    let ctaLabel = `${$CurrentPTO ? 'Update' : 'Create'} time off`
     let isDirty = false
     let dialog
     let dialogTitle = ''
@@ -22,24 +24,55 @@
     let dialogType = ''
     let inputName
     let inputHours
+    let ptoDate
 
-    const updateEmployee = async () => {
-        $CurrentEmployee = {
-            ...$CurrentEmployee,
-            uid: employeeName,
-            active: employeeActive,
-            maxhours: employeeHours
+    const parseDate = (dt) => {
+        if (!dt) {
+            return ''
         }
-        db.collection('employees').doc($CurrentEmployee['id']).set({ ...$CurrentEmployee })
+
+        let month = (dt.getMonth()+1).toString().padStart(2, '0')
+        let date = dt.getDate().toString().padStart(2, '0')
+        let output = `${dt.getFullYear()}-${month}-${date}`
+        return output
+    }
+
+    const toTimestamp = (value, isTime) => {
+        let output = null
+        if (!value) {
+            return output
+        }
+
+        if (isTime) {
+            let values = value.split(':')
+            let now = new Date()
+            now.setHours(values[0])
+            now.setMinutes(values[1])
+
+            output = Timestamp.fromDate(now)
+        }
+        else {
+            output = Timestamp.fromDate(new Date(value))
+        }
+
+        return output
+    }
+
+    const updatePTO = async () => {
+        $CurrentPTO = {
+            employee: $CurrentEmployee['id'],
+            date: toTimestamp(ptoDate)
+        }
+        db.collection('timeoffs').doc($CurrentPTO['id']).set({ ...$CurrentPTO })
 
         dispatch('action', {
-            action: 'update',
-            dirty: false
+            action: 'navigate',
+            page: 'timeoffs'
         })
     }
 
     const handleUpdate = async () => {
-        checkDirty()
+        isDirty = checkDirty()
         if (isDirty) {
             dialogTitle = 'One or more fields are required.'
             dialogContent = 'Please make sure all required fields are filled out corectly.'
@@ -48,15 +81,15 @@
             return
         }
 
-        updateEmployee()
+        updatePTO()
     }
 
     const backToList = () => {
         dispatch('action', {
             action: 'navigate',
-            page: 'list'
+            page: 'timeoffs'
         })
-        $CurrentEmployee = null
+        $CurrentPTO = null
     }
 
     const handleCancel = () => {
@@ -72,20 +105,27 @@
     }
 
     const checkDirty = () => {
-        isDirty = (
+        /* isDirty = (
             inputName.isDirty() ||
             inputHours.isDirty()
-        )
-        console.log('EmployeeInfoForm checkDirty isDirty ==>', isDirty)
+        ) */
+        // console.log('EmployeeInfoForm checkDirty isDirty ==>', isDirty)
+        return ptoDate == '' || ptoDate == null || ptoDate == undefined
     }
 
-    onMount(() => checkDirty())
+    const init = () => {
+        if (!$CurrentPTO['id']) {
+            return
+        }
+
+        ptoDate = $CurrentPTO['date'].toDate()
+    }
+
+    onMount(() => init())
 </script>
 
 <div id="" class="form">
-    <InputText bind:this={inputName} label="Employee name" required bind:value={employeeName} on:change={checkDirty} />
-    <InputCheckbox label="Is Active" bind:checked={employeeActive} on:change />
-    <InputNumber bind:this={inputHours} label="Hours per week" required bind:value={employeeHours} on:change={checkDirty} />
+    <InputDate bind:value={ptoDate} label="Date" required on:change={checkDirty} />
 
     <div class="actions">
         <Button label={ctaLabel} type="cta" on:mouseup={handleUpdate} />

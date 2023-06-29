@@ -8,7 +8,7 @@
     const pages = [
         { name: 'employees',            component: SettingEmployees },
         { name: 'hours',                component: SettingHours },
-        { name: 'time offs',            component: SettingTimeOffs }
+        // { name: 'time offs',            component: SettingTimeOffs }
     ]
 
     const loadComponent = (page) => {

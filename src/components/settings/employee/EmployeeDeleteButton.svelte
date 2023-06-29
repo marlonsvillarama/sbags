@@ -38,7 +38,7 @@
 {#if doDelete}
     <Spinner icon="pulse" id={spinnerId} label="Deleting..." />
 {:else}
-    <Button bind:this={btnDelete} id={btnId} label="Delete employee" icon="trash" type="icon" on:mouseup={showModal} />
+    <Button bind:this={btnDelete} id={btnId} title="Delete employee" icon="trash" type="icon" on:mouseup={showModal} />
 {/if}
 
 <Modal bind:this={dialog} type='confirm' on:confirm={handleConfirm}>

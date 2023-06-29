@@ -5,11 +5,15 @@
     import EmployeeList from "./employee/EmployeeList.svelte";
     import EmployeeInfoForm from './employee/EmployeeInfoForm.svelte';
     import EmployeeViewSchedule from './employee/EmployeeViewSchedule.svelte';
+    import EmployeePtoList from "./employee/EmployeePTOList.svelte";
+    import EmployeePtoForm from "./employee/EmployeePTOForm.svelte";
 
     let pages = [
-        { name: 'list',         title: 'Employees',         component: EmployeeList },
-        { name: 'form',         title: 'Employee Info',     component: EmployeeInfoForm },
-        { name: 'schedule',     title: 'Employee Schedule', component: EmployeeViewSchedule }
+        { name: 'list',         title: 'Employees',             component: EmployeeList },
+        { name: 'form',         title: 'Employee Info',         component: EmployeeInfoForm },
+        { name: 'schedule',     title: 'Employee Schedule',     component: EmployeeViewSchedule },
+        { name: 'timeoffs',     title: 'Time Offs',             component: EmployeePtoList },
+        { name: 'ptoform',      title: 'Create New Time Off',   component: EmployeePtoForm }
     ]
     let showBackToList = false
 
@@ -29,7 +33,7 @@
         switch(data.action) {
             case 'navigate': {
                 navigate(data.page)
-                if (data.page == 'form') {
+                if (data.page == 'form' || data.page == 'ptoform') {
                     showBackToList = false
                 }
                 break;
@@ -38,7 +42,7 @@
                 showBackToList = false
                 break
             } */
-            case 'cancel':
+            // case 'cancel':
             case 'update': {
                 navigate('list')
                 break;
@@ -64,7 +68,7 @@
     {#if selectedPage.name == 'list'}
         <Button label="Create new employee" icon="user-plus" type="cta" on:mouseup={navigateToCreate}></Button>
     {:else if selectedPage.name == 'schedule' || showBackToList}
-        <Button label="Back to list" icon="arrow-left" on:mouseup={(e)=>handleAction({action:'navigate',page:'list'})}></Button>
+        <Button label="Back to Employees" icon="arrow-left" on:mouseup={(e)=>handleAction({action:'navigate',page:'list'})}></Button>
     {/if}
 </div>
 

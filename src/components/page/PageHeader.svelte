@@ -73,7 +73,7 @@
             <!-- <ButtonIcon icon="calendar" name="Pick a date" /> -->
             <Button icon="settings" on:mouseup={openSettings} type="icon" />
         {:else}
-            <Button icon="arrow-left" label="Back to calendar view" on:mouseup={backToHome} />
+            <Button icon="chevron-left calendar" on:mouseup={backToHome} type="icon" />
         {/if}
     </div>
 </div>

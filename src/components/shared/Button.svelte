@@ -25,6 +25,7 @@
     export let id = ''
     export let type = 'button'
     export let label = ''
+    export let title = ''
     export let width = ''
 
     const icons = [
@@ -46,7 +47,7 @@
         { name: 'users',            component: UsersIcon }
     ]
 
-    let selectedIcon
+    let selectedIcons = []
     let buttonClass = ''
 
     const init = () => {
@@ -70,8 +71,13 @@
             return
         }
 
-        let filtered = icon ? icons.filter(i => i.name == icon.toLowerCase()) : [ icons[0] ]
-        selectedIcon = filtered.length > 0 ? filtered[0] : icons[0]
+        let iconList = icon.split(' ')
+        selectedIcons = iconList.map(icon => {
+            let filtered = icon.trim() ? icons.filter(i => i.name == icon.toLowerCase()) : [ icons[0] ]
+            return filtered[0]
+        })
+        // filtered = icon ? icons.filter(i => i.name == icon.toLowerCase()) : [ icons[0] ]
+        // selectedIcon = filtered.length > 0 ? filtered[0] : icons[0]
     }
     init()
 
@@ -81,12 +87,15 @@
     }
 </script>
 
-<div id={id} class={buttonClass} on:mouseup={onMouseUp}>
-    {#if icon}
-        <svelte:component this={selectedIcon.component} size={ label ? "20" : "24" } />
-    {/if}
+<button id={id} class={buttonClass} on:mouseup={onMouseUp} title={title}>
+    <!-- {#if icon} -->
+    {#each selectedIcons as icon}
+        <!-- <svelte:component this={icon.component} size={ label ? "20" : "24" } /> -->
+        <svelte:component this={icon.component} size="18" />
+        {/each}
+    <!-- {/if} -->
     {label}
-</div>
+</button>
 
 <style>
     .button {

@@ -58,6 +58,14 @@
             page: 'schedule'
         })
     }
+
+    const showPTOs = (id) => {
+        CurrentEmployee.update(e => $Employees.filter(emp => emp.id == id)[0])
+        dispatch('action', {
+            action: 'navigate',
+            page: 'timeoffs'
+        })
+    }
 </script>
 
 <div class="row">
@@ -66,8 +74,9 @@
         <Checkbox bind:checked={employee.active} on:change={e=>toggleEmployee(employee.id, e.detail.checked)} />
     </span>
     <div class="emp-actions">
-        <Button label="Update info" icon="edit" type="icon" on:mouseup={()=>showUpdateInfo(employee.id)} />
-        <Button label="Blocked times" icon="calendar" type="icon" on:mouseup={()=>showBlocks(employee.id)} />
+        <Button icon="edit" type="icon" title="Employee info" on:mouseup={()=>showUpdateInfo(employee.id)} />
+        <Button icon="calendar" type="icon" title="Blocked times" on:mouseup={()=>showBlocks(employee.id)} />
+        <Button icon="coffee" type="icon" title="Time offs" on:mouseup={()=>showPTOs(employee.id)} />
     </div>
 
     <EmployeeDeleteButton employee={employee} on:delete={()=>deleteEmployee(employee.id)} />
@@ -102,7 +111,7 @@
     .emp-actions {
         display: flex;
         flex-direction: row;
-        gap: 1rem;
+        gap: 0.5rem;
         align-items: center;
     }
 </style>

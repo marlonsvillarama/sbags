@@ -1,77 +1,92 @@
 <script>
-    export let employee
+    export let pto
     
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
     import { db } from "../../../firebase";
-    import { CurrentEmployee, Employees } from "../../../store/resources";
+    import { TimeOffs } from "../../../store/resources";
 
     import Button from "../../shared/Button.svelte";
-    import Checkbox from "../../shared/form/Checkbox.svelte";
-    import EmployeeDeleteButton from "./EmployeeDeleteButton.svelte";
+    import Modal from "../../shared/Modal.svelte";
 
+    let dialog
     let dispatch = createEventDispatcher()
-    let employees = $Employees
+    let timeOffs = $TimeOffs
+    let timeOffId
 
-    const getEmployee = (id) => {
-        let empFiltered = employees.filter(e => e.id == id);
-        let empToDelete = empFiltered.length > 0 ? empFiltered[0] : null
+    const parseDateTime = (value) => {
+        if (!value || isNaN(value)) {
+            return null
+        }
 
-        return empToDelete
+        let dt = value.toDate()
+        let dateString = dt.toLocaleDateString('en-us', {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric"
+        })
+        let dateParts = dateString.split(', ')
+        let hour = dt.getHours()
+        
+        return {
+            day: dateParts[0],
+            date: dateParts[1],
+            year: dateParts[2],
+            time: `${hour > 12 ? hour - 12 : hour}:${dt.getMinutes().toString().padStart(2, '0')}`,
+            ampm: hour >= 12 ? 'PM' : 'AM'
+        }
     }
 
-    const toggleEmployee = async (id, toggle) => {
-        let emp = getEmployee(id)
-        if (!emp) {
-            return
-        }
-        
-        await db.collection('employees').doc(emp.id).update({ active:toggle })
-        emp.active = true
-        Employees.update(value=>employees)
-      }
-
-    const deleteEmployee = async (id) => {
-        let emp = getEmployee(id)
-        if (!emp) {
+    const showModal = (id) => {
+        if (!id) {
             return
         }
 
-        await db.collection('employees').doc(emp.id).delete()
-        Employees.update(value=>employees.filter(e=>e.id != emp.id))
+        timeOffId = id
+        dialog.show()
+    }
+
+    const deletePTO = async (id) => {
+        await db.collection('timeoffs').doc(pto.id).delete()
+        TimeOffs.update(value=>timeOffs.filter(e=>e.id != pto.id))
         dispatch('action', {
             action: 'delete'
         })
     }
 
-    const showUpdateInfo = (id) => {
-        CurrentEmployee.update(e => $Employees.filter(emp => emp.id == id)[0])
-        dispatch('action', {
-            action: 'navigate',
-            page: 'form'
+    const handleConfirm = () => {
+        dialog.hide()
+        deletePTO(timeOffId)
+    }
+
+    let dateText = null
+    const init = () => {
+        dateText = pto.date.toDate().toLocaleDateString('en-us', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
         })
     }
 
-    const showBlocks = (id) => {
-        CurrentEmployee.update(e => $Employees.filter(emp => emp.id == id)[0])
-        dispatch('action', {
-            action: 'navigate',
-            page: 'schedule'
-        })
-    }
+    onMount(() => {
+        init()
+    })
 </script>
 
 <div class="row">
-    <span>{employee.uid}</span>
-    <span>
-        <Checkbox bind:checked={employee.active} on:change={e=>toggleEmployee(employee.id, e.detail.checked)} />
-    </span>
+    <span>{dateText}</span>
     <div class="emp-actions">
-        <Button label="Update info" icon="edit" type="icon" on:mouseup={()=>showUpdateInfo(employee.id)} />
-        <Button label="Blocked times" icon="calendar" type="icon" on:mouseup={()=>showBlocks(employee.id)} />
+        <Button label="Delete" icon="trash" title="Delete" type="icon" on:mouseup={()=>showModal(pto.id)} />
     </div>
 
-    <EmployeeDeleteButton employee={employee} on:delete={()=>deleteEmployee(employee.id)} />
+    <!-- <EmployeeDeleteButton employee={employee} on:delete={()=>deleteEmployee(employee.id)} /> -->
 </div>
+
+<Modal bind:this={dialog} type='confirm' on:confirm={handleConfirm}>
+    <span slot="header">Delete employee time off</span>
+    <span slot="content">Are you sure you want to delete this time off? This operation cannot be undone.</span>
+</Modal>
 
 <style>
     .row {
